@@ -19,8 +19,8 @@ package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.comparators;
 
 
 
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsStep;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSStep;
 
 import java.io.Serializable;
 import java.util.Comparator;
@@ -29,32 +29,32 @@ import java.util.Iterator;
 /**
  * Step-wise comparator for DFS codes.
  */
-public class DfsCodeComparator implements Comparator<DfsCode>, Serializable {
+public class DFSCodeComparator implements Comparator<DFSCode>, Serializable {
 
   /**
    * step comparator
    */
-  private final DfsStepComparator dfsStepComparator;
+  private final DFSStepComparator dfsStepComparator;
 
   /**
    * constructor
    * @param directed true for comparing DFS codes of directed graphs
    */
-  public DfsCodeComparator(boolean directed) {
-    dfsStepComparator = new DfsStepComparator(directed);
+  public DFSCodeComparator(boolean directed) {
+    dfsStepComparator = new DFSStepComparator(directed);
   }
 
   @Override
-  public int compare(DfsCode c1, DfsCode c2) {
+  public int compare(DFSCode c1, DFSCode c2) {
     int comparison = 0;
 
-    Iterator<DfsStep> i1 = c1.getSteps().iterator();
-    Iterator<DfsStep> i2 = c2.getSteps().iterator();
+    Iterator<DFSStep> i1 = c1.getSteps().iterator();
+    Iterator<DFSStep> i2 = c2.getSteps().iterator();
 
     // compare steps until there is a difference
     while (comparison == 0 && i1.hasNext() && i2.hasNext()) {
-      DfsStep s1 = i1.next();
-      DfsStep s2 = i2.next();
+      DFSStep s1 = i1.next();
+      DFSStep s2 = i2.next();
 
       comparison = dfsStepComparator.compare(s1, s2);
     }

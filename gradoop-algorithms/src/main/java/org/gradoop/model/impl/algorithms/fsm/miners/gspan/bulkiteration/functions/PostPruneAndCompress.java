@@ -22,18 +22,16 @@ import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.util.Collector;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.GSpan;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
-  .CompressedSubgraph;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
-  .SerializedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.SerializedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 
 /**
  * G => compress(G) IF G is canonical
  */
 public class PostPruneAndCompress implements FlatMapFunction
-  <WithCount<SerializedSubgraph>, WithCount<CompressedSubgraph>> {
+  <WithCount<SerializedDFSCode>, WithCount<CompressedDFSCode>> {
 
   /**
    * frequent subgraph mining configuration
@@ -50,14 +48,14 @@ public class PostPruneAndCompress implements FlatMapFunction
   }
 
   @Override
-  public void flatMap(WithCount<SerializedSubgraph> subgraph,
-    Collector<WithCount<CompressedSubgraph>> collector) throws Exception {
+  public void flatMap(WithCount<SerializedDFSCode> subgraph,
+    Collector<WithCount<CompressedDFSCode>> collector) throws Exception {
 
-    DfsCode code = subgraph.getObject().getDfsCode();
+    DFSCode code = subgraph.getObject().getDfsCode();
     int support = subgraph.getCount();
 
     if (GSpan.isMinimumDfsCode(code, fsmConfig)) {
-      collector.collect(new WithCount<>(new CompressedSubgraph(code), support));
+      collector.collect(new WithCount<>(new CompressedDFSCode(code), support));
     }
   }
 }

@@ -4,19 +4,19 @@ import com.google.common.collect.Lists;
 import org.apache.flink.api.common.functions.GroupReduceFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples.RefinementMessage;
 
 import java.util.Collection;
 import java.util.Iterator;
 
 public class RefinementCalls implements
-  GroupReduceFunction<RefinementMessage, Tuple2<Integer, Collection<CompressedSubgraph>>> {
+  GroupReduceFunction<RefinementMessage, Tuple2<Integer, Collection<CompressedDFSCode>>> {
 
   @Override
   public void reduce(
     Iterable<RefinementMessage> iterable,
-    Collector<Tuple2<Integer, Collection<CompressedSubgraph>>> collector) throws
+    Collector<Tuple2<Integer, Collection<CompressedDFSCode>>> collector) throws
     Exception {
 
     Iterator<RefinementMessage> iterator = iterable.iterator();
@@ -25,7 +25,7 @@ public class RefinementCalls implements
 
     int workerId = message.getWorkerId();
 
-    Collection<CompressedSubgraph> codes = Lists
+    Collection<CompressedDFSCode> codes = Lists
       .newArrayList(message.getSubgraph());
 
     while (iterator.hasNext()) {

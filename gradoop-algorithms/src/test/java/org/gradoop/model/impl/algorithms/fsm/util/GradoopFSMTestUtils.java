@@ -9,10 +9,10 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.types.Either;
 import org.apache.flink.util.Collector;
 import org.gradoop.model.impl.algorithms.fsm.config.BroadcastNames;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.comparators.DfsCodeComparator;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsStep;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.comparators.DFSCodeComparator;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSStep;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 
 import java.util.Collections;
@@ -21,8 +21,8 @@ import java.util.List;
 public class GradoopFSMTestUtils {
 
   public static void printDifference(
-    DataSet<WithCount<CompressedSubgraph>> left,
-    DataSet<WithCount<CompressedSubgraph>> right) throws Exception {
+    DataSet<WithCount<CompressedDFSCode>> left,
+    DataSet<WithCount<CompressedDFSCode>> right) throws Exception {
 
     left.fullOuterJoin(right)
       .where(0).equalTo(0)
@@ -34,7 +34,7 @@ public class GradoopFSMTestUtils {
   }
 
   public static void sortTranslateAndPrint(
-    DataSet<WithCount<CompressedSubgraph>> iResult,
+    DataSet<WithCount<CompressedDFSCode>> iResult,
     DataSet<List<String>> vertexLabelDictionary,
     DataSet<List<String>> edgeLabelDictionary) throws Exception {
 
@@ -52,7 +52,7 @@ public class GradoopFSMTestUtils {
 
   private static class SortAndTranslate
     extends
-    RichGroupCombineFunction<WithCount<CompressedSubgraph>, String> {
+    RichGroupCombineFunction<WithCount<CompressedDFSCode>, String> {
 
     private List<String> vertexDictionary;
     private List<String> edgeDictionary;
@@ -70,26 +70,26 @@ public class GradoopFSMTestUtils {
     }
 
     @Override
-    public void combine(Iterable<WithCount<CompressedSubgraph>> iterable,
+    public void combine(Iterable<WithCount<CompressedDFSCode>> iterable,
       Collector<String> collector) throws Exception {
 
-      List<DfsCode> subgraphs = Lists.newArrayList();
+      List<DFSCode> subgraphs = Lists.newArrayList();
       List<String> strings = Lists.newArrayList();
 
 
-      for(WithCount<CompressedSubgraph> subgraphWithCount : iterable) {
+      for(WithCount<CompressedDFSCode> subgraphWithCount : iterable) {
 
         subgraphs.add(subgraphWithCount.getObject().getDfsCode());
       }
 
-      Collections.sort(subgraphs, new DfsCodeComparator(true));
+      Collections.sort(subgraphs, new DFSCodeComparator(true));
 
 
-      for(DfsCode subgraph : subgraphs) {
+      for(DFSCode subgraph : subgraphs) {
         int lastToTime = -1;
         StringBuilder builder = new StringBuilder();
 
-        for(DfsStep step : subgraph.getSteps()) {
+        for(DFSStep step : subgraph.getSteps()) {
           int fromTime = step.getFromTime();
           String fromLabel = vertexDictionary.get(step.getFromLabel());
           boolean outgoing = step.isOutgoing();
@@ -129,27 +129,27 @@ public class GradoopFSMTestUtils {
   }
 
   private static class JoinDifference
-    implements FlatJoinFunction<WithCount<CompressedSubgraph>, WithCount<CompressedSubgraph>,
-    Either<WithCount<CompressedSubgraph>, WithCount<CompressedSubgraph>>> {
+    implements FlatJoinFunction<WithCount<CompressedDFSCode>, WithCount<CompressedDFSCode>,
+    Either<WithCount<CompressedDFSCode>, WithCount<CompressedDFSCode>>> {
 
     @Override
     public void join(
-      WithCount<CompressedSubgraph> left,
-      WithCount<CompressedSubgraph> right,
-      Collector<Either<WithCount<CompressedSubgraph>, WithCount<CompressedSubgraph>>> collector) throws
+      WithCount<CompressedDFSCode> left,
+      WithCount<CompressedDFSCode> right,
+      Collector<Either<WithCount<CompressedDFSCode>, WithCount<CompressedDFSCode>>> collector) throws
       Exception {
 
       if(left == null) {
         collector.collect(
-          Either.<WithCount<CompressedSubgraph>, WithCount<CompressedSubgraph>>Right(right));
+          Either.<WithCount<CompressedDFSCode>, WithCount<CompressedDFSCode>>Right(right));
       } else if (right == null) {
         collector.collect(
-          Either.<WithCount<CompressedSubgraph>, WithCount<CompressedSubgraph>>Left(left));
+          Either.<WithCount<CompressedDFSCode>, WithCount<CompressedDFSCode>>Left(left));
       } else if (left.getCount() != right.getCount()) {
         collector.collect(
-          Either.<WithCount<CompressedSubgraph>, WithCount<CompressedSubgraph>>Left(left));
+          Either.<WithCount<CompressedDFSCode>, WithCount<CompressedDFSCode>>Left(left));
         collector.collect(
-          Either.<WithCount<CompressedSubgraph>, WithCount<CompressedSubgraph>>Right(right));
+          Either.<WithCount<CompressedDFSCode>, WithCount<CompressedDFSCode>>Right(right));
       }
 
     }

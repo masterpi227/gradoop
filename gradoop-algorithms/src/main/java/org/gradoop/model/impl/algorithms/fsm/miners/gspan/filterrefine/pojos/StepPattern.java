@@ -1,6 +1,6 @@
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.pojos;
 
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsStep;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSStep;
 
 public class StepPattern extends StepTriple {
 
@@ -9,7 +9,7 @@ public class StepPattern extends StepTriple {
     super(sourceId, edgeId, targetId);
   }
 
-  public StepPattern(DfsStep step) {
+  public StepPattern(DFSStep step) {
     super(
       step.isOutgoing() ? step.getFromLabel() : step.getToLabel(),
       step.getEdgeLabel(),

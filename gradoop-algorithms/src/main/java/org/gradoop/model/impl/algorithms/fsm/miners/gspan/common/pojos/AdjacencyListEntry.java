@@ -50,7 +50,9 @@ public class AdjacencyListEntry {
    * @param vertexId connected vertex id
    * @param toVertexLabel connected vertex label
    */
-  public AdjacencyListEntry(boolean outgoing, int edgeId, int edgeLabel, int vertexId, int toVertexLabel) {
+  public AdjacencyListEntry(boolean outgoing, int edgeId, int edgeLabel,
+    int vertexId, int toVertexLabel) {
+
     this.outgoing = outgoing;
     this.edgeId = edgeId;
     this.edgeLabel = edgeLabel;

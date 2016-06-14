@@ -5,16 +5,17 @@ import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.GSpan;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanTransaction;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
+  .GSpanGraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 
 import java.util.Collection;
 
 public class Refinement implements FlatJoinFunction<
-  Tuple2<Integer, Collection<CompressedSubgraph>>,
-  Tuple2<Integer, Collection<GSpanTransaction>>, WithCount<CompressedSubgraph>> {
+  Tuple2<Integer, Collection<CompressedDFSCode>>,
+  Tuple2<Integer, Collection<GSpanGraph>>, WithCount<CompressedDFSCode>> {
 
 
   private final FsmConfig fsmConfig;
@@ -25,26 +26,26 @@ public class Refinement implements FlatJoinFunction<
 
   @Override
   public void join(
-    Tuple2<Integer, Collection<CompressedSubgraph>> partitionSubgraphs,
-    Tuple2<Integer, Collection<GSpanTransaction>> partitionGraphs,
-    Collector<WithCount<CompressedSubgraph>> collector) throws Exception {
+    Tuple2<Integer, Collection<CompressedDFSCode>> partitionSubgraphs,
+    Tuple2<Integer, Collection<GSpanGraph>> partitionGraphs,
+    Collector<WithCount<CompressedDFSCode>> collector) throws Exception {
 
-    Collection<CompressedSubgraph> refinementSubgraphs = partitionSubgraphs.f1;
-    Collection<GSpanTransaction> graphs = partitionGraphs.f1;
+    Collection<CompressedDFSCode> refinementSubgraphs = partitionSubgraphs.f1;
+    Collection<GSpanGraph> graphs = partitionGraphs.f1;
 
-    for(CompressedSubgraph compressedSubgraph : refinementSubgraphs) {
+    for(CompressedDFSCode compressedSubgraph : refinementSubgraphs) {
 
-      DfsCode subgraph = compressedSubgraph.getDfsCode();
+      DFSCode subgraph = compressedSubgraph.getDfsCode();
       int frequency = 0;
 
-      for(GSpanTransaction graph : graphs) {
+      for(GSpanGraph graph : graphs) {
         if(GSpan.contains(graph, subgraph, fsmConfig)) {
           frequency++;
         }
       }
 
       if (frequency > 0) {
-        WithCount<CompressedSubgraph> subgraphWithCount =
+        WithCount<CompressedDFSCode> subgraphWithCount =
           new WithCount<>(compressedSubgraph, frequency);
 
         collector.collect(subgraphWithCount);

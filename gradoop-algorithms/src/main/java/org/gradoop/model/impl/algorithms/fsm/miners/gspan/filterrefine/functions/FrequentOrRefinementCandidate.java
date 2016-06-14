@@ -6,7 +6,7 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.util.Collector;
 import org.gradoop.model.impl.algorithms.fsm.config.BroadcastNames;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples.FilterResult;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples
   .RefinementMessage;
@@ -63,7 +63,7 @@ public class FrequentOrRefinementCandidate
     Iterator<FilterResult> iterator = messages.iterator();
     FilterResult message = iterator.next();
 
-    CompressedSubgraph subgraph = message.getSubgraph();
+    CompressedDFSCode subgraph = message.getSubgraph();
     workerIdsWithoutReport.remove(message.getWorkerId());
 
     int support = message.getSupport();

@@ -16,6 +16,6 @@
  */
 
 /**
- * Pojos used in gSpan implementations.
+ * Flink functions used in gSpan implementations.
  */
-package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos;
+package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions;

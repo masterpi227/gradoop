@@ -18,8 +18,10 @@
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.pojos;
 
 import org.apache.commons.lang.StringUtils;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanTransaction;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
+
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
+  .GSpanGraph;
 import org.gradoop.model.impl.tuples.WithCount;
 
 import java.io.Serializable;
@@ -35,19 +37,19 @@ public class IterationItem implements Serializable {
   /**
    * graph
    */
-  private final GSpanTransaction transaction;
+  private final GSpanGraph transaction;
 
   /**
    * collection of frequent subgraph
    */
-  private final Collection<WithCount<CompressedSubgraph>> frequentSubgraphs;
+  private final Collection<WithCount<CompressedDFSCode>> frequentSubgraphs;
 
   /**
    * graph constructor
    *
    * @param transaction graph
    */
-  public IterationItem(GSpanTransaction transaction) {
+  public IterationItem(GSpanGraph transaction) {
     this.transaction = transaction;
     this.frequentSubgraphs = null;
   }
@@ -58,7 +60,7 @@ public class IterationItem implements Serializable {
    * @param frequentSubgraphs collection of frequent subgraphs
    */
   public IterationItem(
-    Collection<WithCount<CompressedSubgraph>> frequentSubgraphs) {
+    Collection<WithCount<CompressedDFSCode>> frequentSubgraphs) {
 
     this.transaction = null;
     this.frequentSubgraphs = frequentSubgraphs;
@@ -72,11 +74,11 @@ public class IterationItem implements Serializable {
     return frequentSubgraphs != null;
   }
 
-  public GSpanTransaction getTransaction() {
+  public GSpanGraph getTransaction() {
     return this.transaction;
   }
 
-  public Collection<WithCount<CompressedSubgraph>> getFrequentSubgraphs() {
+  public Collection<WithCount<CompressedDFSCode>> getFrequentSubgraphs() {
     return this.frequentSubgraphs;
   }
 

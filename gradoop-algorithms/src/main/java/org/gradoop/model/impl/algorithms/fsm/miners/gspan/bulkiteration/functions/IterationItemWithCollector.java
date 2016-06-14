@@ -18,7 +18,7 @@
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.functions;
 
 import org.apache.flink.api.common.functions.MapFunction;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.pojos.IterationItem;
 
@@ -28,11 +28,11 @@ import java.util.Collection;
  * [g1,..,gN] => IterationItem(Collector([g1,..,gN]))
  */
 public class IterationItemWithCollector implements
-  MapFunction<Collection<WithCount<CompressedSubgraph>>, IterationItem> {
+  MapFunction<Collection<WithCount<CompressedDFSCode>>, IterationItem> {
 
   @Override
   public IterationItem map(
-    Collection<WithCount<CompressedSubgraph>> subgraph) throws Exception {
+    Collection<WithCount<CompressedDFSCode>> subgraph) throws Exception {
     return new IterationItem(subgraph);
   }
 }

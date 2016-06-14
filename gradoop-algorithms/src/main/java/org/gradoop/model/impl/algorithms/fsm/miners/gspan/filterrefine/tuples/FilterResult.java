@@ -1,10 +1,10 @@
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples;
 
 import org.apache.flink.api.java.tuple.Tuple4;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 
 public class FilterResult
-  extends Tuple4<CompressedSubgraph, Integer, Integer, Boolean> {
+  extends Tuple4<CompressedDFSCode, Integer, Integer, Boolean> {
 
   /**
    * as Filter result:
@@ -15,13 +15,13 @@ public class FilterResult
 
   }
 
-  public FilterResult(CompressedSubgraph subgraph, int support, int workerId, boolean locallyFrequent) {
+  public FilterResult(CompressedDFSCode subgraph, int support, int workerId, boolean locallyFrequent) {
     super(subgraph, support, workerId, locallyFrequent);
   }
 
   // FILTER RESULT
 
-  public CompressedSubgraph getSubgraph() {
+  public CompressedDFSCode getSubgraph() {
     return this.f0;
   }
 

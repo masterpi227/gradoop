@@ -18,17 +18,18 @@
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.functions;
 
 import org.apache.flink.api.common.functions.MapFunction;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanTransaction;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
+  .GSpanGraph;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.pojos.IterationItem;
 
 /**
  * Graph => IterationItem(Graph)
  */
 public class IterationItemWithTransaction
-  implements MapFunction<GSpanTransaction, IterationItem> {
+  implements MapFunction<GSpanGraph, IterationItem> {
 
   @Override
-  public IterationItem map(GSpanTransaction graph) throws Exception {
+  public IterationItem map(GSpanGraph graph) throws Exception {
     return new IterationItem(graph);
   }
 }

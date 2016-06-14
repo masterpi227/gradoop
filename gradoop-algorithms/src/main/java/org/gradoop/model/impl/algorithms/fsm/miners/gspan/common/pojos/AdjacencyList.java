@@ -43,11 +43,6 @@ public class AdjacencyList {
     this.entries = Lists.newArrayList();
   }
 
-  public AdjacencyList(int fromVertexLabel, AdjacencyListEntry entry) {
-    this.fromVertexLabel = fromVertexLabel;
-    this.entries = Lists.newArrayList(entry);
-  }
-
   @Override
   public String toString() {
     return entries.toString();

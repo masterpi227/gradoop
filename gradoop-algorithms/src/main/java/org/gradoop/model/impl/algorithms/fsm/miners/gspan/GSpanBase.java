@@ -1,40 +1,47 @@
+/*
+ * This file is part of Gradoop.
+ *
+ * Gradoop is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Gradoop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Gradoop. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan;
 
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.tuple.Tuple3;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
-import org.gradoop.model.impl.algorithms.fsm.miners.TransactionalFsMiner;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions.SearchSpace;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.SerializedSubgraph;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanTransaction;
 import org.gradoop.model.impl.algorithms.fsm.encoders.tuples.EdgeTriple;
-import org.gradoop.model.impl.algorithms.fsm.encoders.tuples.EdgeTripleWithoutTargetLabel;
-import org.gradoop.model.impl.functions.utils.LeftSide;
-import org.gradoop.model.impl.id.GradoopId;
+import org.gradoop.model.impl.algorithms.fsm.miners.TransactionalFsMiner;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions
+  .SearchSpace;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
+  .GSpanGraph;
 
 /**
- * Created by peet on 17.05.16.
+ * Abstract superclass of Flink GSpan implementations.
  */
 public abstract class GSpanBase implements TransactionalFsMiner {
 
   /**
-   * maximum iteration, if no maximum edge count provided
+   * Flink execution environment
    */
   protected ExecutionEnvironment env;
 
+  /**
+   * FSM configuration
+   */
   protected FsmConfig fsmConfig;
-
-
-  protected DataSet<Tuple3<GradoopId, EdgeTripleWithoutTargetLabel, SerializedSubgraph>> frequent(
-    DataSet<Tuple3<GradoopId, EdgeTripleWithoutTargetLabel, SerializedSubgraph>> fatEdges,
-    DataSet<SerializedSubgraph> allFrequentDfsCodes) {
-
-    return fatEdges
-      .join(allFrequentDfsCodes)
-      .where(2).equalTo(0)
-      .with(new LeftSide<Tuple3<GradoopId, EdgeTripleWithoutTargetLabel, SerializedSubgraph>, SerializedSubgraph>());
-  }
 
   @Override
   public void setExecutionEnvironment(ExecutionEnvironment env) {
@@ -45,7 +52,13 @@ public abstract class GSpanBase implements TransactionalFsMiner {
     this.fsmConfig = fsmConfig;
   }
 
-  protected DataSet<GSpanTransaction> createTransactions(
+  /**
+   * Creates mining graph representation from edge triples.
+   *
+   * @param edges edges
+   * @return graph transactions
+   */
+  protected DataSet<GSpanGraph> createTransactions(
     DataSet<EdgeTriple> edges) {
     return edges
       .groupBy(0)

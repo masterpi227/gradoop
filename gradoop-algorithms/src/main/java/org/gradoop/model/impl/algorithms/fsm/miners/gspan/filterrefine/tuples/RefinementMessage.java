@@ -1,10 +1,10 @@
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples;
 
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 
 public class RefinementMessage
-  extends Tuple3<CompressedSubgraph, Integer, Short> {
+  extends Tuple3<CompressedDFSCode, Integer, Short> {
   public static final short GLOBALLY_FREQUENT = 0;
   public static final short PARTIAL_RESULT = 1;
   public static final short REFINEMENT_CALL = 2;
@@ -14,7 +14,7 @@ public class RefinementMessage
   }
 
 
-  public RefinementMessage(CompressedSubgraph subgraph, int supportOrWorkerId,
+  public RefinementMessage(CompressedDFSCode subgraph, int supportOrWorkerId,
     short messageType) {
     super(subgraph, supportOrWorkerId, messageType);
 
@@ -28,7 +28,7 @@ public class RefinementMessage
     return this.f1;
   }
 
-  public CompressedSubgraph getSubgraph() {
+  public CompressedDFSCode getSubgraph() {
     return this.f0;
   }
 

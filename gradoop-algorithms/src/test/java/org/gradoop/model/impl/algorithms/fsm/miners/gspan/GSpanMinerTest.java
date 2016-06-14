@@ -8,7 +8,7 @@ import org.gradoop.model.impl.GraphCollection;
 import org.gradoop.model.impl.GraphTransactions;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.miners.TransactionalFsMiner;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.algorithms.fsm.encoders.GraphCollectionTFsmEncoder;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.GSpanFilterRefine;
@@ -46,7 +46,7 @@ public class GSpanMinerTest extends GradoopFlinkTestBase {
     for (TransactionalFsMiner miner : getTransactionalFSMiners()) {
       miner.setExecutionEnvironment(
         collection.getConfig().getExecutionEnvironment());
-      DataSet<WithCount<CompressedSubgraph>> frequentSubgraphs =
+      DataSet<WithCount<CompressedDFSCode>> frequentSubgraphs =
         miner.mine(edges, encoder.getMinFrequency(), fsmConfig);
 
       Assert.assertEquals(702, frequentSubgraphs.count());
@@ -81,11 +81,11 @@ public class GSpanMinerTest extends GradoopFlinkTestBase {
     TransactionalFsMiner iMiner = new GSpanBulkIteration();
     iMiner.setExecutionEnvironment(
       collection.getConfig().getExecutionEnvironment());
-    DataSet<WithCount<CompressedSubgraph>> iResult =
+    DataSet<WithCount<CompressedDFSCode>> iResult =
       iMiner.mine(edges, encoder.getMinFrequency(), fsmConfig);
 
     TransactionalFsMiner fsMiner = new GSpanFilterRefine();
-    DataSet<WithCount<CompressedSubgraph>> frResult =
+    DataSet<WithCount<CompressedDFSCode>> frResult =
       fsMiner.mine(edges, encoder.getMinFrequency(), fsmConfig);
 
     collectAndAssertTrue(Equals

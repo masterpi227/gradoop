@@ -16,6 +16,7 @@
  */
 
 /**
- * Pojos used in gSpan implementations.
+ * Classes related to the gSpan frequent subgraph mining algorithm.
  */
-package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos;
+
+package org.gradoop.model.impl.algorithms.fsm.miners.gspan;

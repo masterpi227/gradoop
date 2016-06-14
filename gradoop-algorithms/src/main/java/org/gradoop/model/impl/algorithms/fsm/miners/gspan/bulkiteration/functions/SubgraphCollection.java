@@ -25,8 +25,7 @@ import org.apache.flink.util.Collector;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration
   .pojos.IterationItem;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
-  .CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 
 import java.util.Collection;
@@ -45,9 +44,9 @@ import java.util.List;
  * => [(g1, freq1),..,(gM, freqM)]
  */
 public class SubgraphCollection implements GroupReduceFunction
-  <WithCount<CompressedSubgraph>, Collection<WithCount<CompressedSubgraph>>>,
-  MapFunction<IterationItem, Collection<WithCount<CompressedSubgraph>>>,
-  ReduceFunction<Collection<WithCount<CompressedSubgraph>>> {
+  <WithCount<CompressedDFSCode>, Collection<WithCount<CompressedDFSCode>>>,
+  MapFunction<IterationItem, Collection<WithCount<CompressedDFSCode>>>,
+  ReduceFunction<Collection<WithCount<CompressedDFSCode>>> {
 
   /**
    * Frequent Subgraph Mining configuration
@@ -70,22 +69,22 @@ public class SubgraphCollection implements GroupReduceFunction
   }
 
   @Override
-  public Collection<WithCount<CompressedSubgraph>> map(
+  public Collection<WithCount<CompressedDFSCode>> map(
     IterationItem collector) throws Exception {
 
     return collector.getFrequentSubgraphs();
   }
 
   @Override
-  public void reduce(Iterable<WithCount<CompressedSubgraph>> iterable,
-    Collector<Collection<WithCount<CompressedSubgraph>>> collector) throws
+  public void reduce(Iterable<WithCount<CompressedDFSCode>> iterable,
+    Collector<Collection<WithCount<CompressedDFSCode>>> collector) throws
     Exception {
 
-    List<WithCount<CompressedSubgraph>> subgraphs = Lists.newArrayList();
-    Iterator<WithCount<CompressedSubgraph>> iterator = iterable.iterator();
+    List<WithCount<CompressedDFSCode>> subgraphs = Lists.newArrayList();
+    Iterator<WithCount<CompressedDFSCode>> iterator = iterable.iterator();
 
     if (iterator.hasNext()) {
-      WithCount<CompressedSubgraph> subgraph = iterator.next();
+      WithCount<CompressedDFSCode> subgraph = iterator.next();
 
       if (subgraph.getObject().getDfsCode().size() >=
         fsmConfig.getMinEdgeCount()) {
@@ -101,12 +100,12 @@ public class SubgraphCollection implements GroupReduceFunction
   }
 
   @Override
-  public Collection<WithCount<CompressedSubgraph>> reduce(
-    Collection<WithCount<CompressedSubgraph>> firstSubgraphs,
-    Collection<WithCount<CompressedSubgraph>> secondSubgraphs) throws
+  public Collection<WithCount<CompressedDFSCode>> reduce(
+    Collection<WithCount<CompressedDFSCode>> firstSubgraphs,
+    Collection<WithCount<CompressedDFSCode>> secondSubgraphs) throws
     Exception {
 
-    Collection<WithCount<CompressedSubgraph>> mergedSubgraphs;
+    Collection<WithCount<CompressedDFSCode>> mergedSubgraphs;
 
     if (firstSubgraphs.size() >= firstSubgraphs.size()) {
       firstSubgraphs.addAll(secondSubgraphs);

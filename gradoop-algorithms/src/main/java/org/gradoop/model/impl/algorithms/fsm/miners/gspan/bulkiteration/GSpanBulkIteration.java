@@ -35,8 +35,8 @@ import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions.Frequ
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.functions.HasGrownSubgraphs;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.functions.PostPruneAndCompress;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.functions.ReportGrownSubgraphs;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.SerializedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.SerializedDFSCode;
 
 import org.gradoop.model.impl.functions.utils.AddCount;
 import org.gradoop.model.impl.functions.utils.SumCount;
@@ -52,7 +52,7 @@ import java.util.Collection;
 public class GSpanBulkIteration extends GSpanBase {
 
   @Override
-  public DataSet<WithCount<CompressedSubgraph>> mine(DataSet<EdgeTriple> edges,
+  public DataSet<WithCount<CompressedDFSCode>> mine(DataSet<EdgeTriple> edges,
     DataSet<Integer> minFrequency, FsmConfig fsmConfig) {
 
     setFsmConfig(fsmConfig);
@@ -62,7 +62,7 @@ public class GSpanBulkIteration extends GSpanBase {
 
     // create search space with collector
 
-    Collection<WithCount<CompressedSubgraph>> emptySubgraphList =
+    Collection<WithCount<CompressedDFSCode>> emptySubgraphList =
       Lists.newArrayListWithExpectedSize(0);
 
     DataSet<IterationItem> searchSpace = transactions
@@ -82,22 +82,22 @@ public class GSpanBulkIteration extends GSpanBase {
       .filter(new IsTransaction());
 
     // report ,filter and validate frequent subgraphs
-    DataSet<WithCount<CompressedSubgraph>> currentFrequentSubgraphs =
+    DataSet<WithCount<CompressedDFSCode>> currentFrequentSubgraphs =
       transactions
         .flatMap(new ReportGrownSubgraphs())
-        .map(new AddCount<SerializedSubgraph>())
+        .map(new AddCount<SerializedDFSCode>())
         // count frequency per worker, prune and compress subgraph
         .groupBy(0)
-        .combineGroup(new SumCount<SerializedSubgraph>())
+        .combineGroup(new SumCount<SerializedDFSCode>())
         .flatMap(new PostPruneAndCompress(fsmConfig))
         // count global frequency and filter frequent subgraphs
         .groupBy(0)
         .sum(1)
-        .filter(new Frequent<CompressedSubgraph>())
+        .filter(new Frequent<CompressedDFSCode>())
         .withBroadcastSet(minFrequency, BroadcastNames.MIN_FREQUENCY);
 
     // get all frequent subgraphs
-    DataSet<Collection<WithCount<CompressedSubgraph>>> collector = workSet
+    DataSet<Collection<WithCount<CompressedDFSCode>>> collector = workSet
       .filter(new IsCollector())
       .map(new SubgraphCollection())
       .union(

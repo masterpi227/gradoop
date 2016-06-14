@@ -29,17 +29,17 @@ import java.util.List;
 /**
  * pojo representing a gSpan DFS code
  */
-public class DfsCode implements Serializable {
+public class DFSCode implements Serializable {
   /**
    * list of steps
    */
-  private final List<DfsStep> steps;
+  private final List<DFSStep> steps;
 
   /**
    * constructor
    * @param step initial step
    */
-  public DfsCode(DfsStep step) {
+  public DFSCode(DFSStep step) {
     this.steps = new ArrayList<>();
     this.steps.add(step);
   }
@@ -48,14 +48,14 @@ public class DfsCode implements Serializable {
    * constructor
    * @param steps initial steps
    */
-  public DfsCode(ArrayList<DfsStep> steps) {
+  public DFSCode(ArrayList<DFSStep> steps) {
     this.steps = steps;
   }
 
   /**
    * empty constructor
    */
-  public DfsCode() {
+  public DFSCode() {
     this.steps = new ArrayList<>();
   }
 
@@ -70,7 +70,7 @@ public class DfsCode implements Serializable {
 
     List<Integer> rightMostPath = null;
 
-    for (DfsStep step : Lists.reverse(steps)) {
+    for (DFSStep step : Lists.reverse(steps)) {
 
       if (step.isForward() || lastToTime == null && step.isLoop()) {
         int fromTime = step.getFromTime();
@@ -98,7 +98,7 @@ public class DfsCode implements Serializable {
     return rightMostPath;
   }
 
-  public List<DfsStep> getSteps() {
+  public List<DFSStep> getSteps() {
     return steps;
   }
 
@@ -112,7 +112,7 @@ public class DfsCode implements Serializable {
 
     HashCodeBuilder builder = new HashCodeBuilder();
 
-    for (DfsStep step : steps) {
+    for (DFSStep step : steps) {
       builder.append(step.hashCode());
     }
 
@@ -124,14 +124,14 @@ public class DfsCode implements Serializable {
 
     Boolean equals = this == other;
 
-    if (!equals && other != null && other instanceof DfsCode) {
+    if (!equals && other != null && other instanceof DFSCode) {
 
-      DfsCode otherCode = (DfsCode) other;
+      DFSCode otherCode = (DFSCode) other;
 
       if (this.getSteps().size() == otherCode.getSteps().size()) {
 
-        Iterator<DfsStep> ownSteps = this.getSteps().iterator();
-        Iterator<DfsStep> otherSteps = otherCode.getSteps().iterator();
+        Iterator<DFSStep> ownSteps = this.getSteps().iterator();
+        Iterator<DFSStep> otherSteps = otherCode.getSteps().iterator();
 
         equals = true;
 
@@ -149,15 +149,19 @@ public class DfsCode implements Serializable {
    * @param dfsCode input DFS code
    * @return deep copy of input
    */
-  public static DfsCode deepCopy(DfsCode dfsCode) {
-    return new DfsCode(Lists.newArrayList(dfsCode.getSteps()));
+  public static DFSCode deepCopy(DFSCode dfsCode) {
+    return new DFSCode(Lists.newArrayList(dfsCode.getSteps()));
   }
 
+  /**
+   * Convenience method retrieving the size of an DFS code.
+   * @return number of traversal steps
+   */
   public int size() {
     return steps.size();
   }
 
-  public DfsStep getLastStep() {
+  public DFSStep getLastStep() {
     return steps.get(steps.size() - 1);
   }
 

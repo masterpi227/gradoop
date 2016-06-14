@@ -29,7 +29,7 @@ import org.gradoop.model.impl.algorithms.fsm.encoders.TransactionalFsmEncoder;
 import org.gradoop.model.impl.algorithms.fsm.miners.TransactionalFsMiner;
 
 import org.gradoop.model.impl.algorithms.fsm.config.TransactionalFsmAlgorithm;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.algorithms.fsm.decoders.gspan.GSpanGraphCollectionDecoder;
 import org.gradoop.model.impl.algorithms.fsm.encoders.GraphCollectionTFsmEncoder;
@@ -86,7 +86,7 @@ public class TransactionalFsm
 
     DataSet<EdgeTriple> edges = encoder.encode(collection, fsmConfig);
 
-    DataSet<WithCount<CompressedSubgraph>> frequentDfsCodes = miner
+    DataSet<WithCount<CompressedDFSCode>> frequentDfsCodes = miner
       .mine(edges, encoder.getMinFrequency(), fsmConfig);
 
     return decoder.decode(

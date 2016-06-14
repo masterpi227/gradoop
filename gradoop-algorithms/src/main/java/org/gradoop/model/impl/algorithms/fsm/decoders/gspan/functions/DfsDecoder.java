@@ -27,9 +27,9 @@ import org.apache.flink.api.java.typeutils.TupleTypeInfo;
 import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.gradoop.model.api.EPGMGraphHead;
 import org.gradoop.model.api.EPGMGraphHeadFactory;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsStep;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSStep;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.id.GradoopId;
 
@@ -45,7 +45,7 @@ public class DfsDecoder<G extends EPGMGraphHead> implements
   ResultTypeQueryable<Tuple3<G,
       ArrayList<Tuple2<GradoopId, Integer>>,
       ArrayList<Tuple3<GradoopId, GradoopId, Integer>>>>,
-  MapFunction<WithCount<CompressedSubgraph>,Tuple3<G,
+  MapFunction<WithCount<CompressedDFSCode>,Tuple3<G,
       ArrayList<Tuple2<GradoopId, Integer>>,
       ArrayList<Tuple3<GradoopId, GradoopId, Integer>>>> {
 
@@ -57,11 +57,11 @@ public class DfsDecoder<G extends EPGMGraphHead> implements
   @Override
   public Tuple3<G, ArrayList<Tuple2<GradoopId, Integer>>,
     ArrayList<Tuple3<GradoopId, GradoopId, Integer>>> map(
-    WithCount<CompressedSubgraph> compressedDfsCode) throws  Exception {
+    WithCount<CompressedDFSCode> compressedDfsCode) throws  Exception {
 
 //    System.out.println(compressedDfsCode);
 
-    DfsCode dfsCode = compressedDfsCode.getObject().getDfsCode();
+    DFSCode dfsCode = compressedDfsCode.getObject().getDfsCode();
 
     G graphHead = graphHeadFactory.createGraphHead();
 
@@ -75,7 +75,7 @@ public class DfsDecoder<G extends EPGMGraphHead> implements
 
     Map<Integer, GradoopId> vertexTimeId = new HashMap<>();
 
-    for (DfsStep step : dfsCode.getSteps()) {
+    for (DFSStep step : dfsCode.getSteps()) {
 
       Integer fromTime = step.getFromTime();
       Integer fromLabel = step.getFromLabel();

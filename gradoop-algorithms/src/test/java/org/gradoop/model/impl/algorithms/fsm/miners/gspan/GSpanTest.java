@@ -6,9 +6,9 @@ import org.gradoop.model.impl.GraphCollection;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.encoders.TransactionalFsmEncoder;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.GSpan;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsStep;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanTransaction;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSStep;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanGraph;
 import org.gradoop.model.impl.algorithms.fsm.encoders.tuples.EdgeTriple;
 import org.gradoop.model.impl.algorithms.fsm.encoders.GraphCollectionTFsmEncoder;
 import org.gradoop.model.impl.pojo.EdgePojo;
@@ -33,12 +33,12 @@ public class GSpanTest extends GradoopFlinkTestBase {
     //  (0:A)    (1:A)
     //       -a->
 
-    DfsStep firstStep = new DfsStep(0, 0, true, 0, 1, 0);
-    DfsStep backwardStep = new DfsStep(1, 0, false, 0, 0, 0);
-    DfsStep branchStep = new DfsStep(0, 0, true, 0, 1, 0);
+    DFSStep firstStep = new DFSStep(0, 0, true, 0, 1, 0);
+    DFSStep backwardStep = new DFSStep(1, 0, false, 0, 0, 0);
+    DFSStep branchStep = new DFSStep(0, 0, true, 0, 1, 0);
 
-    DfsCode minCode = new DfsCode(Lists.newArrayList(firstStep, backwardStep));
-    DfsCode wrongCode = new DfsCode(Lists.newArrayList(firstStep, branchStep));
+    DFSCode minCode = new DFSCode(Lists.newArrayList(firstStep, backwardStep));
+    DFSCode wrongCode = new DFSCode(Lists.newArrayList(firstStep, branchStep));
 
     assertTrue(
       GSpan.isMinimumDfsCode(minCode, fsmConfig));
@@ -80,8 +80,8 @@ public class GSpanTest extends GradoopFlinkTestBase {
     Collection<EdgeTriple> edges =
       encoder.encode(searchSpace, fsmConfig).collect();
 
-    // create GSpanTransaction
-    GSpanTransaction transaction = GSpan.createTransaction(edges);
+    // create GSpanGraph
+    GSpanGraph transaction = GSpan.createGSpanGraph(edges);
 
     assertEquals(1, transaction.getCodeEmbeddings().size());
 
@@ -89,31 +89,31 @@ public class GSpanTest extends GradoopFlinkTestBase {
       transaction.getCodeEmbeddings().values().iterator().next().size());
 
     // N=1
-    Collection<DfsCode> singleEdgeCodes =
+    Collection<DFSCode> singleEdgeCodes =
       transaction.getCodeEmbeddings().keySet();
 
     assertEquals(singleEdgeCodes.size(), 1);
 
-    DfsCode singleEdgeCode =
+    DFSCode singleEdgeCode =
       singleEdgeCodes.iterator().next();
 
-    assertEquals(singleEdgeCode, new DfsCode(new DfsStep(0, 0, true, 0, 1, 0)));
+    assertEquals(singleEdgeCode, new DFSCode(new DFSStep(0, 0, true, 0, 1, 0)));
 
     // N=2
     assertEquals(0, singleEdgeCode.getMinVertexLabel());
 
     GSpan.growEmbeddings(transaction, singleEdgeCodes,fsmConfig);
 
-    Collection<DfsCode> twoEdgeCodes =
+    Collection<DFSCode> twoEdgeCodes =
       transaction.getCodeEmbeddings().keySet();
 
     assertEquals(4, twoEdgeCodes.size());
 
     // post pruning
-    Iterator<DfsCode> iterator = twoEdgeCodes.iterator();
+    Iterator<DFSCode> iterator = twoEdgeCodes.iterator();
 
     while (iterator.hasNext()) {
-      DfsCode subgraph = iterator.next();
+      DFSCode subgraph = iterator.next();
 
       if (!GSpan.isMinimumDfsCode(subgraph, fsmConfig)) {
         iterator.remove();
@@ -124,13 +124,13 @@ public class GSpanTest extends GradoopFlinkTestBase {
 
     // N=3
 
-    DfsCode minSubgraph =
-      GSpan.minimumDfsCode(twoEdgeCodes, fsmConfig);
+    DFSCode minSubgraph =
+      GSpan.selectMinDFSCode(twoEdgeCodes, fsmConfig);
 
     GSpan.growEmbeddings(
       transaction, Lists.newArrayList(minSubgraph), fsmConfig);
 
-    Collection<DfsCode> threeEdgeCodes =
+    Collection<DFSCode> threeEdgeCodes =
       transaction.getCodeEmbeddings().keySet();
 
     assertEquals(2, threeEdgeCodes.size());
@@ -139,7 +139,7 @@ public class GSpanTest extends GradoopFlinkTestBase {
     iterator = threeEdgeCodes.iterator();
 
     while (iterator.hasNext()) {
-      DfsCode subgraph = iterator.next();
+      DFSCode subgraph = iterator.next();
 
       if (!GSpan.isMinimumDfsCode(subgraph, fsmConfig)) {
         iterator.remove();
@@ -150,12 +150,12 @@ public class GSpanTest extends GradoopFlinkTestBase {
 
     // N=4
 
-    minSubgraph = GSpan.minimumDfsCode(threeEdgeCodes, fsmConfig);
+    minSubgraph = GSpan.selectMinDFSCode(threeEdgeCodes, fsmConfig);
 
     GSpan.growEmbeddings(
       transaction, Lists.newArrayList(minSubgraph), fsmConfig);
 
-    Collection<DfsCode> fourEdgeCodes =
+    Collection<DFSCode> fourEdgeCodes =
       transaction.getCodeEmbeddings().keySet();
 
     assertEquals(1, fourEdgeCodes.size());

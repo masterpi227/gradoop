@@ -22,37 +22,55 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class GSpanTransaction implements Serializable {
+/**
+ * Graph representation in Gradoop gSpan implementations.
+ */
+public class GSpanGraph implements Serializable {
 
+  /**
+   * Vertex adjacency lists. Index is vertex identifier.
+   */
   private List<AdjacencyList> adjacencyLists;
-  private Map<DfsCode, Collection<DFSEmbedding>> codeEmbeddings;
+  /**
+   * Embeddings (value) of supported DFS codes (key)
+   */
+  private Map<DFSCode, Collection<DFSEmbedding>> codeEmbeddings;
 
-  public GSpanTransaction(
+  /**
+   * Constructor.
+   *
+   * @param adjacencyLists adjacency lists
+   * @param codeEmbeddings initial DFS codes and embeddings
+   */
+  public GSpanGraph(
     List<AdjacencyList> adjacencyLists,
-    Map<DfsCode, Collection<DFSEmbedding>> codeEmbeddings) {
+    Map<DFSCode, Collection<DFSEmbedding>> codeEmbeddings) {
 
     this.adjacencyLists = adjacencyLists;
     this.codeEmbeddings = codeEmbeddings;
+  }
+
+
+  /**
+   * Convenience method to check further ability to grow frequent subgraphs.
+   *
+   * @return true, if able, false, otherwise
+   */
+  public Boolean hasGrownSubgraphs() {
+    return this.codeEmbeddings != null;
   }
 
   public List<AdjacencyList> getAdjacencyLists() {
     return adjacencyLists;
   }
 
-  public Map<DfsCode, Collection<DFSEmbedding>>
-  getCodeEmbeddings() {
-
+  public Map<DFSCode, Collection<DFSEmbedding>> getCodeEmbeddings() {
     return codeEmbeddings;
   }
 
   public void setCodeEmbeddings(
-    Map<DfsCode, Collection<DFSEmbedding>> codeEmbeddings) {
-
+    Map<DFSCode, Collection<DFSEmbedding>> codeEmbeddings) {
     this.codeEmbeddings = codeEmbeddings;
-  }
-
-  public Boolean hasGrownSubgraphs() {
-    return this.codeEmbeddings != null;
   }
 
   @Override
@@ -62,8 +80,10 @@ public class GSpanTransaction implements Serializable {
     int listId = 0;
 
     for (AdjacencyList adjacencyList : adjacencyLists) {
-      builder.append("(" + listId + ":" + adjacencyList.getFromVertexLabel()+
-        ")" + adjacencyList.getEntries() + "\n");
+      builder
+        .append("(").append(listId).append(":")
+        .append(adjacencyList.getFromVertexLabel()).append(")")
+        .append(adjacencyList.getEntries()).append("\n");
       listId++;
     }
 

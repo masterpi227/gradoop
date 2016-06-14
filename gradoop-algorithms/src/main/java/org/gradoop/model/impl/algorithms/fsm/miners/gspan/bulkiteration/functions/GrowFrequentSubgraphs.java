@@ -23,8 +23,8 @@ import org.apache.flink.configuration.Configuration;
 import org.gradoop.model.impl.algorithms.fsm.config.BroadcastNames;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.GSpan;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.pojos.IterationItem;
 
@@ -43,7 +43,7 @@ public class GrowFrequentSubgraphs
   /**
    * frequent DFS codes
    */
-  private Collection<DfsCode> frequentSubgraphs;
+  private Collection<DFSCode> frequentSubgraphs;
 
   /**
    * constructor
@@ -57,13 +57,13 @@ public class GrowFrequentSubgraphs
   public void open(Configuration parameters) throws Exception {
     super.open(parameters);
 
-    Collection<WithCount<CompressedSubgraph>> frequentSubgraphsWithFrequency =
+    Collection<WithCount<CompressedDFSCode>> frequentSubgraphsWithFrequency =
       getRuntimeContext()
         .getBroadcastVariable(BroadcastNames.FREQUENT_SUBGRAPHS);
 
     frequentSubgraphs = Lists.newArrayList();
 
-    for (WithCount<CompressedSubgraph> frequentSubgraph :
+    for (WithCount<CompressedDFSCode> frequentSubgraph :
       frequentSubgraphsWithFrequency) {
 
       frequentSubgraphs.add(frequentSubgraph.getObject().getDfsCode());

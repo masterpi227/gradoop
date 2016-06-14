@@ -1,18 +1,64 @@
+/*
+ * This file is part of Gradoop.
+ *
+ * Gradoop is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Gradoop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Gradoop. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos;
 
 import java.io.Serializable;
 
-public class GSpanEdge
-  implements Serializable, Comparable<GSpanEdge> {
+/**
+ * Simple edge triple representation with integer ids and labels.
+ */
+public class GSpanEdge implements Serializable, Comparable<GSpanEdge> {
 
+  /**
+   * source vertex id
+   */
   private final int sourceId;
+  /**
+   * source vertex label
+   */
   private final int sourceLabel;
+  /**
+   * edge id
+   */
   private final int edgeId;
+  /**
+   * edge label
+   */
   private final int label;
+  /**
+   * target vertex id
+   */
   private final int targetId;
+  /**
+   * target vertex label
+   */
   private final int targetLabel;
 
-
+  /**
+   * Constructor.
+   *
+   * @param sourceId source vertex id
+   * @param sourceLabel source vertex label
+   * @param edgeId edge id
+   * @param label edge label
+   * @param targetId target vertex id
+   * @param targetLabel target vertex label
+   */
   public GSpanEdge(
     int sourceId, int sourceLabel,
     int edgeId, int label,
@@ -24,6 +70,31 @@ public class GSpanEdge
     this.label = label;
     this.targetId = targetId;
     this.targetLabel = targetLabel;
+  }
+
+  /**
+   * Convenience method for loop checking.
+   * @return true, if loop, false, otherwise
+   */
+  public boolean isLoop() {
+    return sourceId == targetId;
+  }
+
+  /**
+   * Convenience method to access the minimum vertex label.
+   * @return minimum vertex label
+   */
+  private int getMinVertexLabel() {
+    return sourceIsMinimumLabel() ? sourceLabel : targetLabel;
+  }
+
+  /**
+   * Convenience method to check if source vertex label is minimum vertex label.
+   * @return true, if source vertex label is smaller than target vertex
+   * label, false otherwise
+   */
+  public boolean sourceIsMinimumLabel() {
+    return sourceLabel <= targetLabel;
   }
 
   public int getSourceId() {
@@ -48,14 +119,6 @@ public class GSpanEdge
 
   public int getTargetLabel() {
     return targetLabel;
-  }
-
-  public boolean isLoop() {
-    return sourceId == targetId;
-  }
-
-  private int getMinVertexLabel() {
-    return sourceIsMinimumLabel() ? sourceLabel : targetLabel;
   }
 
   @Override
@@ -83,7 +146,7 @@ public class GSpanEdge
           // both start from minimum vertex label
           comparison = this.getLabel() - other.getLabel();
 
-          if(comparison == 0) {
+          if (comparison == 0) {
             // same edge label
             comparison = this.getTargetLabel() - other.getTargetLabel();
           }
@@ -99,9 +162,5 @@ public class GSpanEdge
     return "(" + getSourceId() + ":" + getSourceLabel() + ")-[" +
       getEdgeId() + ":" + getLabel() +
       "]->(" + getTargetId() + ":" + getTargetLabel() + ")";
-  }
-
-  public boolean sourceIsMinimumLabel() {
-    return sourceLabel <= targetLabel;
   }
 }

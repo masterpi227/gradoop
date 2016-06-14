@@ -16,6 +16,6 @@
  */
 
 /**
- * Pojos used in gSpan implementations.
+ * Comparators used in gSpan implementations.
  */
-package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos;
+package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.comparators;

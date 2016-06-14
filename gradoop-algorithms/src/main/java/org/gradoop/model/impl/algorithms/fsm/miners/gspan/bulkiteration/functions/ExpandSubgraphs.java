@@ -19,7 +19,7 @@ package org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.functio
 
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.util.Collector;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.pojos.IterationItem;
 
@@ -27,13 +27,13 @@ import org.gradoop.model.impl.algorithms.fsm.miners.gspan.bulkiteration.pojos.It
  * Collector([G1,..,GN]) => G1,..,GN
  */
 public class ExpandSubgraphs
-  implements FlatMapFunction<IterationItem, WithCount<CompressedSubgraph>> {
+  implements FlatMapFunction<IterationItem, WithCount<CompressedDFSCode>> {
 
   @Override
   public void flatMap(IterationItem iterationItem,
-    Collector<WithCount<CompressedSubgraph>> collector) throws Exception {
+    Collector<WithCount<CompressedDFSCode>> collector) throws Exception {
 
-    for (WithCount<CompressedSubgraph> compressedDfsCode :
+    for (WithCount<CompressedDFSCode> compressedDfsCode :
       iterationItem.getFrequentSubgraphs()) {
 
       collector.collect(compressedDfsCode);

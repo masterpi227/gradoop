@@ -25,7 +25,7 @@ import java.io.Serializable;
 /**
  * pojo representing an DFS traversal step
  */
-public class DfsStep implements Serializable {
+public class DFSStep implements Serializable {
   /**
    * discovery time of traversal start vertex
    */
@@ -60,7 +60,7 @@ public class DfsStep implements Serializable {
    * @param toTime discovery time of traversal end vertex
    * @param toLabel label of traversal end vertex
    */
-  public DfsStep(int fromTime, Integer fromLabel, Boolean outgoing,
+  public DFSStep(int fromTime, Integer fromLabel, Boolean outgoing,
     Integer edgeLabel, int toTime, Integer toLabel) {
     this.fromTime = fromTime;
     this.fromLabel = fromLabel;
@@ -107,7 +107,7 @@ public class DfsStep implements Serializable {
 
     if (!equals && obj != null && obj.getClass() == getClass()) {
 
-      DfsStep other = (DfsStep) obj;
+      DFSStep other = (DFSStep) obj;
 
       EqualsBuilder builder = new EqualsBuilder();
 

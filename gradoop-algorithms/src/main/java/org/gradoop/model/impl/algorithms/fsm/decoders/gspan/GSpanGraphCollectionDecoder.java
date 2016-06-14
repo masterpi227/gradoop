@@ -16,7 +16,7 @@ import org.gradoop.model.impl.algorithms.fsm.decoders.gspan.functions.ExpandVert
 import org.gradoop.model.impl.algorithms.fsm.decoders.gspan.functions.FullEdge;
 import org.gradoop.model.impl.algorithms.fsm.decoders.gspan.functions.FullVertex;
 import org.gradoop.model.impl.algorithms.fsm.decoders.gspan.functions.VertexLabelDecoder;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.functions.tuple.Value0Of3;
 import org.gradoop.model.impl.id.GradoopId;
@@ -44,7 +44,7 @@ public class GSpanGraphCollectionDecoder
    */
   @Override
   public GraphCollection<G, V, E> decode(
-    DataSet<WithCount<CompressedSubgraph>> codes,
+    DataSet<WithCount<CompressedDFSCode>> codes,
     DataSet<List<String>> vertexLabelDictionary,
     DataSet<List<String>> edgeLabelDictionary) {
 

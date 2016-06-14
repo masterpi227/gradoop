@@ -20,31 +20,33 @@ package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.flink.api.java.tuple.Tuple1;
 
-import java.io.*;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 
 /**
  * tuple-representation fo a compressed DFS code including its support.
  * (bytes,support)
  */
-public class CompressedSubgraph extends Tuple1<byte[]> {
-  
+public class SerializedDFSCode extends Tuple1<byte[]> {
+
   /**
    * default constructor
    */
-  public CompressedSubgraph() {
+  public SerializedDFSCode() {
   }
 
   /**
    * valued constructor
    * @param dfsCode DFS code to compress
    */
-  public CompressedSubgraph(DfsCode dfsCode) {
+  public SerializedDFSCode(DFSCode dfsCode) {
     try {
       ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream();
-      GZIPOutputStream gzipOS = new GZIPOutputStream(byteArrayOS);
-      ObjectOutputStream objectOS = new ObjectOutputStream(gzipOS);
+      ObjectOutputStream objectOS = new ObjectOutputStream(byteArrayOS);
       objectOS.writeObject(dfsCode);
       objectOS.close();
       this.f0 = byteArrayOS.toByteArray();
@@ -57,17 +59,16 @@ public class CompressedSubgraph extends Tuple1<byte[]> {
    * uncompressing the store DFS code
    * @return uncompressed DFS code
    */
-  public DfsCode getDfsCode() {
-    DfsCode dfsCode;
+  public DFSCode getDfsCode() {
+    DFSCode dfsCode;
 
     try {
       ByteArrayInputStream byteArrayIS = new ByteArrayInputStream(this.f0);
-      GZIPInputStream gzipIn = new GZIPInputStream(byteArrayIS);
-      ObjectInputStream objectIn = new ObjectInputStream(gzipIn);
-      dfsCode = (DfsCode) objectIn.readObject();
+      ObjectInputStream objectIn = new ObjectInputStream(byteArrayIS);
+      dfsCode = (DFSCode) objectIn.readObject();
       objectIn.close();
     } catch (IOException | ClassNotFoundException e) {
-      dfsCode = new DfsCode();
+      dfsCode = new DFSCode();
     }
 
     return dfsCode;
@@ -97,7 +98,7 @@ public class CompressedSubgraph extends Tuple1<byte[]> {
 
     if (equals) {
       byte[] ownBytes = this.getBytes();
-      byte[] otherBytes = ((CompressedSubgraph) o).getBytes();
+      byte[] otherBytes = ((SerializedDFSCode) o).getBytes();
 
       equals = ownBytes.length == otherBytes.length;
 

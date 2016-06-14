@@ -16,6 +16,6 @@
  */
 
 /**
- * comparators used for frequent subgraph mining
+ * Classes used for multiple gSpan implementations.
  */
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common;

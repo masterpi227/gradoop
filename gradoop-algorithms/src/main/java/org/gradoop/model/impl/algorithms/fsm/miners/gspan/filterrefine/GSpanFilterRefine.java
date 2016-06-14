@@ -6,8 +6,8 @@ import org.gradoop.model.impl.algorithms.fsm.miners.gspan.GSpanBase;
 import org.gradoop.model.impl.algorithms.fsm.config.BroadcastNames;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions.Frequent;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanTransaction;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedSubgraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanGraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
 import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.functions.*;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples.FilterResult;
@@ -24,14 +24,14 @@ public class GSpanFilterRefine
 
 
   @Override
-  public DataSet<WithCount<CompressedSubgraph>> mine(DataSet<EdgeTriple> edges,
+  public DataSet<WithCount<CompressedDFSCode>> mine(DataSet<EdgeTriple> edges,
                                                       DataSet<Integer> minSupport, FsmConfig fsmConfig) {
 
     setFsmConfig(fsmConfig);
-    DataSet<GSpanTransaction> transactions = createTransactions(edges);
+    DataSet<GSpanGraph> transactions = createTransactions(edges);
 
     // distribute graphs to workers
-    DataSet<Tuple2<Integer, Collection<GSpanTransaction>>> partitions =
+    DataSet<Tuple2<Integer, Collection<GSpanGraph>>> partitions =
       transactions
         .rebalance()
         .mapPartition(new SearchSpacePartition());
@@ -57,19 +57,19 @@ public class GSpanFilterRefine
         .withBroadcastSet(workerIdsGraphCount, BroadcastNames.WORKER_GRAPHCOUNT);
 
     // add globally frequent DFS codes to result
-    DataSet<WithCount<CompressedSubgraph>> frequentDfsCodes = filterResult
+    DataSet<WithCount<CompressedDFSCode>> frequentDfsCodes = filterResult
       .filter(new CompleteResult())
       .map(new CompressedSubgraphWithCount());
 
     // REFINEMENT
 
     // remember incomplete results
-    DataSet<WithCount<CompressedSubgraph>> partialResults = filterResult
+    DataSet<WithCount<CompressedDFSCode>> partialResults = filterResult
       .filter(new PartialResult())
       .map(new CompressedSubgraphWithCount());
 
     // get refined results
-    DataSet<WithCount<CompressedSubgraph>> refinementResults =
+    DataSet<WithCount<CompressedDFSCode>> refinementResults =
       filterResult
       .filter(new RefinementCall())
       .groupBy(1) // workerId

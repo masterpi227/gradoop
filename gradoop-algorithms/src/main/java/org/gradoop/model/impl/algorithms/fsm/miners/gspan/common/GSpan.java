@@ -1,85 +1,131 @@
+/*
+ * This file is part of Gradoop.
+ *
+ * Gradoop is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Gradoop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Gradoop. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.flink.hadoop.shaded.com.google.common.collect.Maps;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.comparators.DfsCodeSiblingComparator;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.comparators.DFSCodeSiblingComparator;
 
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
   .AdjacencyList;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
   .AdjacencyListEntry;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSEmbedding;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DfsStep;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSStep;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
   .GSpanEdge;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanTransaction;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
+  .GSpanGraph;
 import org.gradoop.model.impl.algorithms.fsm.encoders.tuples.EdgeTriple;
 import org.gradoop.model.impl.id.GradoopId;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+/**
+ * Encapsulation of all logic of the gSpan algorithm for mining frequent
+ * subgraphs in a collection of graphs. File is separated into methods for
+ * graph construction, pattern growth, minimal DFS code validation and pattern
+ * matching
+ */
 public class GSpan {
 
+  // GRAPH CONSTRUCTION
+
   /**
-   * creates the gSpan mining representation of a graph transaction
+   * Creates the gSpan mining representation of a graph transaction from a
+   * given collection of Gradoop edge triples.
    *
    * @param triples the graphs edges
    * @return graph transaction
    */
-  public static GSpanTransaction createTransaction(
-    Iterable<EdgeTriple> triples) {
+  public static GSpanGraph createGSpanGraph(Iterable<EdgeTriple> triples) {
 
     // replace GradoopIds by Integer Ids
     List<GSpanEdge> edges = Lists.newArrayList();
     List<AdjacencyList> adjacencyLists = Lists.newArrayList();
     createAdjacencyListsAndEdges(triples, adjacencyLists, edges);
 
-    return createTransaction(adjacencyLists, edges);
+    return createGSpanGraph(adjacencyLists, edges);
   }
 
-  public static GSpanTransaction createTransaction(DfsCode dfsCode) {
+  /**
+   * Creates the gSpan mining representation of a graph transaction from an
+   * existing encoded subgraph.
+   *
+   * @param subgraph encodes subgraph
+   * @return graph transaction
+   */
+  private static GSpanGraph createGSpanGraph(DFSCode subgraph) {
 
     // turn DFS edges into gSpan edges
-    List<DfsStep> steps = dfsCode.getSteps();
+    List<DFSStep> steps = subgraph.getSteps();
     List<AdjacencyList> adjacencyLists = Lists.newArrayList();
     List<GSpanEdge> edges = Lists.newArrayListWithExpectedSize(steps.size());
     createAdjacencyListsAndEdges(steps, adjacencyLists, edges);
 
-    return createTransaction(adjacencyLists, edges);
+    return createGSpanGraph(adjacencyLists, edges);
   }
 
-  private static GSpanTransaction createTransaction(
+  /**
+   * Creates the gSpan mining representation of a graph transaction from a
+   * give list of adjacency lists and edges.
+   *
+   * @param adjacencyLists adjacency lists
+   * @param edges edges
+   * @return graph transaction
+   */
+  private static GSpanGraph createGSpanGraph(
     List<AdjacencyList> adjacencyLists, List<GSpanEdge> edges) {
     // sort by min vertex label
     Collections.sort(edges);
 
-    // create adjacency lists and 1-edge DFS codes with their embeddings
+    // create adjacency lists and 1-edge subgraphs with their embeddings
 
-    Map<DfsCode, Collection<DFSEmbedding>> codeEmbeddings =
+    Map<DFSCode, Collection<DFSEmbedding>> codeEmbeddings =
       Maps.newHashMap();
 
     Iterator<GSpanEdge> iterator = edges.iterator();
     GSpanEdge lastEdge = iterator.next();
 
     Collection<DFSEmbedding> embeddings =
-      createNewDfsCodeEmbeddings(codeEmbeddings, lastEdge);
+      createSingleEdgeSubgraphEmbeddings(codeEmbeddings, lastEdge);
 
-    while (iterator.hasNext()){
+    while (iterator.hasNext()) {
       GSpanEdge edge = iterator.next();
 
       // add embedding of 1-edge code
       if (edge.compareTo(lastEdge) == 0) {
-        embeddings.add(initDfsEmbedding(edge));
+        embeddings.add(createSingleEdgeEmbedding(edge));
       } else {
-        embeddings = createNewDfsCodeEmbeddings(codeEmbeddings, edge);
+        embeddings = createSingleEdgeSubgraphEmbeddings(codeEmbeddings, edge);
         lastEdge = edge;
       }
     }
 
-    return new GSpanTransaction(adjacencyLists, codeEmbeddings);
+    return new GSpanGraph(adjacencyLists, codeEmbeddings);
   }
 
   /**
@@ -87,18 +133,18 @@ public class GSpan {
    * i.e., replaces GradoopIds by local integer ids
    *
    * @param iterable edge triples with GradoopIds
-   * @param adjacencyLists
+   * @param adjacencyLists adjacency lists
    *@param edges  @return gSpan edges
    */
   private static void createAdjacencyListsAndEdges(
     final Iterable<EdgeTriple> iterable,
     final List<AdjacencyList> adjacencyLists, final List<GSpanEdge> edges) {
 
-    Map<GradoopId, Integer> vertexIdMap = new HashMap<>();
+    Map<GradoopId, Integer> vertexIdMap = Maps.newHashMap();
     int vertexId = 0;
 
     int edgeId = 0;
-    for(EdgeTriple triple : iterable) {
+    for (EdgeTriple triple : iterable) {
 
       Integer edgeLabel = triple.getEdgeLabel();
 
@@ -106,7 +152,7 @@ public class GSpan {
       Integer sourceId = vertexIdMap.get(sourceGradoopId);
       Integer sourceLabel = triple.getSourceLabel();
 
-      if(sourceId == null) {
+      if (sourceId == null) {
         sourceId = vertexId;
         vertexIdMap.put(sourceGradoopId, sourceId);
         vertexId++;
@@ -116,21 +162,35 @@ public class GSpan {
       Integer targetId = vertexIdMap.get(targetGradoopId);
       Integer targetLabel = triple.getTargetLabel();
 
-      if(targetId == null) {
+      if (targetId == null) {
         targetId = vertexId;
         vertexIdMap.put(targetGradoopId, targetId);
 
         vertexId++;
       }
 
-      addEntries(edges, adjacencyLists,
+      addNewEdgeAndAdjacencyListEntries(edges, adjacencyLists,
         sourceId, sourceLabel, edgeId, edgeLabel, targetId, targetLabel);
 
       edgeId++;
     }
   }
 
-  private static void addEntries(
+  /**
+   * Creates a new gSpan edge and two adjacency list entries for given labels
+   * and identifiers. Edge will be added to an edge lists and adjacency list
+   * entries to an adjacency list.
+   *
+   * @param edges edges
+   * @param adjacencyLists adjacency lists
+   * @param sourceId source vertex id
+   * @param sourceLabel source vertex label
+   * @param edgeId edge id
+   * @param edgeLabel edge label
+   * @param targetId target id
+   * @param targetLabel target label
+   */
+  private static void addNewEdgeAndAdjacencyListEntries(
     final List<GSpanEdge> edges,
     final List<AdjacencyList> adjacencyLists,
     int sourceId, int sourceLabel,
@@ -140,29 +200,42 @@ public class GSpan {
     edges.add(new GSpanEdge(
       sourceId, sourceLabel, edgeId, edgeLabel, targetId, targetLabel));
 
-    if(sourceId <= targetId) {
-      addEntry(adjacencyLists,
+    if (sourceId <= targetId) {
+      addAdjacencyListEntry(adjacencyLists,
         sourceId, sourceLabel, true, edgeId, edgeLabel, targetId, targetLabel);
 
-      addEntry(adjacencyLists,
+      addAdjacencyListEntry(adjacencyLists,
         targetId, targetLabel, false, edgeId, edgeLabel, sourceId, sourceLabel);
     } else {
-      addEntry(adjacencyLists,
+      addAdjacencyListEntry(adjacencyLists,
         targetId, targetLabel, false, edgeId, edgeLabel, sourceId, sourceLabel);
 
-      addEntry(adjacencyLists,
+      addAdjacencyListEntry(adjacencyLists,
         sourceId, sourceLabel, true, edgeId, edgeLabel, targetId, targetLabel);
     }
   }
 
-  private static void addEntry(final List<AdjacencyList> adjacencyLists,
+  /**
+   * Creates a new adjacency list entry and adds it to its adjacency list.
+   *
+   * @param adjacencyLists adjacency lists
+   * @param fromId entry owning vertex id
+   * @param fromLabel entry owning vertex label
+   * @param outgoing true, if outgoing entry, false, if incoming
+   * @param edgeId edge id
+   * @param edgeLabel edge label
+   * @param toId referenced vertex id
+   * @param toLabel reference vertex label
+   */
+  private static void addAdjacencyListEntry(
+    final List<AdjacencyList> adjacencyLists,
     int fromId, int fromLabel,
     boolean outgoing, int edgeId, int edgeLabel,
     int toId, int toLabel) {
 
     AdjacencyList adjacencyList;
 
-    if (fromId >= adjacencyLists.size() ) {
+    if (fromId >= adjacencyLists.size()) {
       adjacencyList = new AdjacencyList(fromLabel);
       adjacencyLists.add(adjacencyList);
     } else {
@@ -173,11 +246,18 @@ public class GSpan {
       outgoing, edgeId, edgeLabel, toId, toLabel));
   }
 
-  private static void createAdjacencyListsAndEdges(final List<DfsStep> steps,
+  /**
+   * Creates adjacency lists and gSpan edges for a list of DFS steps.
+   *
+   * @param steps DFS steps
+   * @param adjacencyLists adjacency lists
+   * @param edges edges
+   */
+  private static void createAdjacencyListsAndEdges(final List<DFSStep> steps,
     final List<AdjacencyList> adjacencyLists, final List<GSpanEdge> edges) {
 
     int edgeId = 0;
-    for(DfsStep step : steps) {
+    for (DFSStep step : steps) {
 
       Integer edgeLabel = step.getEdgeLabel();
 
@@ -199,28 +279,39 @@ public class GSpan {
         targetLabel = step.getFromLabel();
       }
 
-      addEntries(edges, adjacencyLists,
+      addNewEdgeAndAdjacencyListEntries(edges, adjacencyLists,
         sourceId, sourceLabel, edgeId, edgeLabel, targetId, targetLabel);
 
       edgeId++;
     }
-
   }
 
+  /**
+   * Creates a new entry for single edge subgraph including an initial
+   * embedding for a gibe edge.
+   *
+   * @param subgraphEmbeddings subgraph-embeddings map
+   * @param edge edge
+   * @return collection of embeddings
+   */
+  private static Collection<DFSEmbedding> createSingleEdgeSubgraphEmbeddings(
+    Map<DFSCode, Collection<DFSEmbedding>> subgraphEmbeddings, GSpanEdge edge) {
 
-  private static Collection<DFSEmbedding> createNewDfsCodeEmbeddings(
-    Map<DfsCode, Collection<DFSEmbedding>> codeEmbeddings,
-    GSpanEdge edge) {
-
-    DfsCode code = initDfsCode(edge);
-    DFSEmbedding embedding = initDfsEmbedding(edge);
+    DFSCode subgraph = createSingleEdgeSubgraph(edge);
+    DFSEmbedding embedding = createSingleEdgeEmbedding(edge);
     Collection<DFSEmbedding> embeddings = Lists.newArrayList(embedding);
-    codeEmbeddings.put(code, embeddings);
+    subgraphEmbeddings.put(subgraph, embeddings);
 
     return embeddings;
   }
 
-  private static DFSEmbedding initDfsEmbedding(final GSpanEdge edge) {
+  /**
+   * Creates a single edge embedding for a given edge.
+   *
+   * @param edge edge
+   * @return embedding
+   */
+  private static DFSEmbedding createSingleEdgeEmbedding(final GSpanEdge edge) {
     List<Integer> vertexTimes;
 
     if (edge.isLoop()) {
@@ -234,91 +325,54 @@ public class GSpan {
     return new DFSEmbedding(vertexTimes, Lists.newArrayList(edge.getEdgeId()));
   }
 
-  private static DfsCode initDfsCode(final GSpanEdge edge) {
+  /**
+   * Create a single edge Subgraph for a given edge.
+   *
+   * @param edge edge
+   * @return subgraph
+   */
+  private static DFSCode createSingleEdgeSubgraph(final GSpanEdge edge) {
 
     int sourceLabel = edge.getSourceLabel();
     int edgeLabel = edge.getLabel();
     int targetLabel = edge.getTargetLabel();
 
-    DfsStep step;
+    DFSStep step;
 
     if (edge.isLoop()) {
-      step = new DfsStep(0, sourceLabel, true, edgeLabel, 0, sourceLabel);
-    } else if(edge.sourceIsMinimumLabel()) {
-      step = new DfsStep(0, sourceLabel, true, edgeLabel, 1, targetLabel);
+      step = new DFSStep(0, sourceLabel, true, edgeLabel, 0, sourceLabel);
+    } else if (edge.sourceIsMinimumLabel()) {
+      step = new DFSStep(0, sourceLabel, true, edgeLabel, 1, targetLabel);
     } else {
-      step = new DfsStep(0, targetLabel, false, edgeLabel, 1, sourceLabel);
+      step = new DFSStep(0, targetLabel, false, edgeLabel, 1, sourceLabel);
     }
 
-    return new DfsCode(step);
+    return new DFSCode(step);
   }
 
+  // PATTERN GROWTH
 
+  /**
+   * Core of gSpan pattern growth.
+   * Grows all children of supported frequent subgraphs.
+   * 
+   * @param graph graph
+   * @param frequentParentSubgraphs frequent subgraphs
+   * @param fsmConfig FSM configuration
+   */
+  public static void growEmbeddings(final GSpanGraph graph,
+    Collection<DFSCode> frequentParentSubgraphs, FsmConfig fsmConfig) {
+    Map<DFSCode, Collection<DFSEmbedding>> childCodeEmbeddings = null;
 
-  private static void createAdjacencyListEntries(
-    List<AdjacencyList> adjacencyLists, GSpanEdge edge) {
-
-    System.out.println(adjacencyLists);
-
-    int sourceId = edge.getSourceId();
-    int sourceLabel = edge.getSourceLabel();
-
-    int edgeId = edge.getEdgeId();
-    int edgeLabel = edge.getLabel();
-
-    int targetId = edge.getTargetId();
-    int targetLabel = edge.getTargetLabel();
-
-    AdjacencyList sourceAdjacencyList;
-
-    sourceAdjacencyList =
-      getOrCreateAdjacencyList(adjacencyLists, sourceId, sourceLabel);
-
-    AdjacencyList targetAdjacencyList;
-
-    if(edge.isLoop()) {
-      targetAdjacencyList = sourceAdjacencyList;
-    } else {
-      targetAdjacencyList =
-        getOrCreateAdjacencyList(adjacencyLists, targetId, targetLabel);
-    }
-
-    sourceAdjacencyList.getEntries().add(
-      new AdjacencyListEntry(true, edgeId, edgeLabel, targetId, targetLabel));
-
-    targetAdjacencyList.getEntries().add(
-      new AdjacencyListEntry(false, edgeId, edgeLabel, sourceId, sourceLabel));
-
-    System.out.println(adjacencyLists);
-
-  }
-
-  private static AdjacencyList getOrCreateAdjacencyList(
-    final List<AdjacencyList> adjacencyLists, final int id, final int label) {
-
-    AdjacencyList adjacencyList = adjacencyLists.get(id);
-
-    if (adjacencyList == null) {
-      adjacencyList = new AdjacencyList(label);
-      adjacencyLists.add(id, adjacencyList);
-    }
-
-    return adjacencyList;
-  }
-
-  public static void growEmbeddings(final GSpanTransaction transaction,
-    Collection<DfsCode> frequentParentSubgraphs, FsmConfig fsmConfig)
-  {
-    Map<DfsCode, Collection<DFSEmbedding>> childCodeEmbeddings = null;
-
-    for(DfsCode parentCode : frequentParentSubgraphs) {
+    for (DFSCode parentSubgraph : frequentParentSubgraphs) {
       Collection<DFSEmbedding> parentEmbeddings =
-        transaction.getCodeEmbeddings().get(parentCode);
+        graph.getCodeEmbeddings().get(parentSubgraph);
 
       if (parentEmbeddings != null) {
-        int minVertexLabel = parentCode.getMinVertexLabel();
+        int minVertexLabel = parentSubgraph.getMinVertexLabel();
 
-        List<Integer> rightmostPath = parentCode.getRightMostPathVertexTimes();
+        List<Integer> rightmostPath =
+          parentSubgraph.getRightMostPathVertexTimes();
 
         // for each embedding
         for (DFSEmbedding parentEmbedding : parentEmbeddings) {
@@ -329,7 +383,8 @@ public class GSpan {
           Set<Integer> visitedEdges =
             Sets.newHashSet(parentEmbedding.getEdgeTimes());
 
-          Map<Integer, Integer> vertexIdTime = mapVertexTimes(parentEmbedding);
+          Map<Integer, Integer> vertexIdTime =
+            createVertexTimeIndex(parentEmbedding);
 
           // for each time on rightmost path
           for (Integer fromVertexTime : rightmostPath) {
@@ -338,7 +393,7 @@ public class GSpan {
 
             // query fromVertex data
             AdjacencyList adjacencyList =
-              transaction.getAdjacencyLists().get(fromVertexId);
+              graph.getAdjacencyLists().get(fromVertexId);
 
             Integer fromVertexLabel = adjacencyList.getFromVertexLabel();
 
@@ -367,7 +422,7 @@ public class GSpan {
 
                     DFSEmbedding childEmbedding =
                       DFSEmbedding.deepCopy(parentEmbedding);
-                    DfsCode childCode = DfsCode.deepCopy(parentCode);
+                    DFSCode childCode = DFSCode.deepCopy(parentSubgraph);
 
                     // add new vertex to embedding for forward steps
                     if (forward) {
@@ -375,7 +430,7 @@ public class GSpan {
                       toVertexTime = vertexIdTime.size();
                     }
 
-                    childCode.getSteps().add(new DfsStep(
+                    childCode.getSteps().add(new DFSStep(
                       fromVertexTime,
                       fromVertexLabel,
                       entry.isOutgoing(),
@@ -384,7 +439,7 @@ public class GSpan {
                       toVertexLabel
                     ));
 
-                    childEmbedding.getEdgeTimes().add(edgeId);;
+                    childEmbedding.getEdgeTimes().add(edgeId);
 
                     childCodeEmbeddings = addCodeEmbedding(
                       childCodeEmbeddings, childCode, childEmbedding);
@@ -395,106 +450,159 @@ public class GSpan {
             rightMostVertex = false;
           }
         }
-
       }
     }
-
-    transaction.setCodeEmbeddings(childCodeEmbeddings);
+    graph.setCodeEmbeddings(childCodeEmbeddings);
   }
 
-  private static Map<Integer, Integer> mapVertexTimes(DFSEmbedding embedding) {
-    Map<Integer, Integer> vertexTimes = Maps.newHashMapWithExpectedSize(
-        embedding.getVertexTimes().size());
+  /**
+   * Creates an index of the vertex time of each mapped vertex id.
+   *
+   * @param embedding embedding containing the time-vertex mapping
+   * @return vertex-time mapping
+   */
+  private static Map<Integer, Integer> createVertexTimeIndex(
+    DFSEmbedding embedding) {
+
+    Map<Integer, Integer> vertexTimes =
+      Maps.newHashMapWithExpectedSize(embedding.getVertexTimes().size());
 
     int vertexTime = 0;
-    for(int vertexId : embedding.getVertexTimes()) {
+    for (int vertexId : embedding.getVertexTimes()) {
       vertexTimes.put(vertexId, vertexTime);
       vertexTime++;
     }
     return vertexTimes;
   }
 
-  public static DfsCode minimumDfsCode(
-    final Collection<DfsCode> dfsCodes, final FsmConfig fsmConfig) {
-
-    Iterator<DfsCode> iterator = dfsCodes.iterator();
-
-    DfsCode minCode = iterator.next();
-
-    for(DfsCode nextCode : dfsCodes) {
-      if(getSiblingComparator(fsmConfig).compare(nextCode, minCode) < 0) {
-        minCode = nextCode;
-      }
-    }
-
-    return minCode;
-  }
-
-  private static DfsCodeSiblingComparator getSiblingComparator(
+  /**
+   * Returns a new comparator for subgraph siblings depending on the given
+   * configuration.
+   * @param fsmConfig FSM configuration
+   * @return comparator
+   */
+  private static DFSCodeSiblingComparator getSiblingComparator(
     FsmConfig fsmConfig) {
-    return new DfsCodeSiblingComparator(fsmConfig.isDirected());
+
+    return new DFSCodeSiblingComparator(fsmConfig.isDirected());
   }
 
-  private static Map<DfsCode, Collection<DFSEmbedding>>
-  addCodeEmbedding(
-    Map<DfsCode, Collection<DFSEmbedding>> codeEmbeddings,
-    DfsCode code, DFSEmbedding embedding) {
+  /**
+   * Adds a subgraph and one of its embeddings to a map of subgraphs and
+   * their embeddings. Creates a new map, if null. Creates a new entry, if DFS
+   * code not already contained.
+   *
+   * @param subgraphEmbeddings subgraph - embeddings - map
+   * @param subgraph subgraph
+   * @param embedding embedding
+   * @return updated input map
+   */
+  private static Map<DFSCode, Collection<DFSEmbedding>> addCodeEmbedding(
+    Map<DFSCode, Collection<DFSEmbedding>> subgraphEmbeddings,
+    DFSCode subgraph, DFSEmbedding embedding) {
 
     Collection<DFSEmbedding> embeddings;
 
-    if(codeEmbeddings == null) {
-      codeEmbeddings = Maps.newHashMap();
-      codeEmbeddings.put(code, Lists.newArrayList(embedding));
+    if (subgraphEmbeddings == null) {
+      subgraphEmbeddings = Maps.newHashMap();
+      subgraphEmbeddings.put(subgraph, Lists.newArrayList(embedding));
     } else {
-      embeddings = codeEmbeddings.get(code);
+      embeddings = subgraphEmbeddings.get(subgraph);
 
-      if(embeddings == null) {
-        codeEmbeddings.put(code, Lists.newArrayList(embedding));
+      if (embeddings == null) {
+        subgraphEmbeddings.put(subgraph, Lists.newArrayList(embedding));
       } else {
         embeddings.add(embedding);
       }
     }
-    return codeEmbeddings;
+    return subgraphEmbeddings;
   }
 
-  public static boolean isMinimumDfsCode(
-    DfsCode subgraph, FsmConfig fsmConfig) {
+  // MINIMAL DFS CODE VALIDATION
 
-    GSpanTransaction transaction = createTransaction(subgraph);
-    DfsCode minDfsCode = getMinimumDFSCode(transaction, fsmConfig);
+  /**
+   * Checks, if a subgraph is minimal.
+   *
+   * @param subgraph subgraph
+   * @param fsmConfig FSM configuration
+   * @return true, if minimal, false otherwise
+   */
+  public static boolean isMinimumDfsCode(
+    DFSCode subgraph, FsmConfig fsmConfig) {
+
+    GSpanGraph graph = createGSpanGraph(subgraph);
+    DFSCode minDfsCode = calculateMinDFSCode(graph, fsmConfig);
 
     return subgraph.equals(minDfsCode);
   }
 
-  public static DfsCode getMinimumDFSCode(
-    GSpanTransaction transaction, FsmConfig fsmConfig) {
-    DfsCode minDfsCode = null;
+  /**
+   * Determines the minimal subgraph of a given graph.
+   *
+   * @param graph graph
+   * @param fsmConfig FSM configuration
+   * @return minimal subgraph
+   */
+  private static DFSCode calculateMinDFSCode(
+    GSpanGraph graph, FsmConfig fsmConfig) {
 
-    while (transaction.hasGrownSubgraphs()) {
-      Set<DfsCode> grownSubgraphs =
-        transaction.getCodeEmbeddings().keySet();
+    DFSCode minDfsCode = null;
 
-      minDfsCode = minimumDfsCode(grownSubgraphs, fsmConfig);
+    while (graph.hasGrownSubgraphs()) {
+      Set<DFSCode> grownSubgraphs =
+        graph.getCodeEmbeddings().keySet();
 
+      minDfsCode = selectMinDFSCode(grownSubgraphs, fsmConfig);
 
-      growEmbeddings(
-        transaction, Lists.newArrayList(minDfsCode), fsmConfig);
-
+      growEmbeddings(graph, Lists.newArrayList(minDfsCode), fsmConfig);
     }
     return minDfsCode;
   }
 
+  /**
+   * Selectis the minimal subgraph from a given collection.
+   *
+   * @param subgraphs collection of subgraphs
+   * @param fsmConfig FSM configuration
+   * @return minimal subgraph
+   */
+  public static DFSCode selectMinDFSCode(
+    final Collection<DFSCode> subgraphs, final FsmConfig fsmConfig) {
+
+    Iterator<DFSCode> iterator = subgraphs.iterator();
+
+    DFSCode minDfsCode = iterator.next();
+
+    for (DFSCode nextDfsCode : subgraphs) {
+      if (getSiblingComparator(fsmConfig).compare(nextDfsCode, minDfsCode) < 0)
+      {
+        minDfsCode = nextDfsCode;
+      }
+    }
+
+    return minDfsCode;
+  }
+
+  // PATTERN MATCHING
+
+  /**
+   * Checks, if a graph contains a subgraph (pattern matching).
+   * @param graph search graph
+   * @param subgraph subgraph
+   * @param fsmConfig FSM configuration
+   * @return true, if subgraph is contained, false, otherwise
+   */
   public static boolean contains(
-    GSpanTransaction graph, DfsCode subgraph, FsmConfig fsmConfig) {
+    GSpanGraph graph, DFSCode subgraph, FsmConfig fsmConfig) {
 
 
-    Iterator<DfsStep> iterator = subgraph.getSteps().iterator();
+    Iterator<DFSStep> iterator = subgraph.getSteps().iterator();
 
-    DfsStep step = iterator.next();
+    DFSStep step = iterator.next();
 
     Collection<DFSEmbedding> parentEmbeddings = Lists.newArrayList();
     int fromVertexId = 0;
-    for(AdjacencyList adjacencyList : graph.getAdjacencyLists()) {
+    for (AdjacencyList adjacencyList : graph.getAdjacencyLists()) {
       if (step.getFromLabel().equals(adjacencyList.getFromVertexLabel())) {
         for (AdjacencyListEntry entry : adjacencyList.getEntries()) {
           if (step.isOutgoing() == entry.isOutgoing() &&
