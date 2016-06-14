@@ -23,6 +23,17 @@ import org.gradoop.model.impl.properties.PropertyValue;
  * Used to find the minimum value in a set of values.
  */
 public class MinAggregator extends PropertyValueAggregator {
+
+  /**
+   * Default property key to fetch values for aggregation.
+   */
+  public static final String DEFAULT_PROPERTY_KEY = "*";
+
+  /**
+   * Default property key to store the result of the aggregate function.
+   */
+  public static final String DEFAULT_AGGREGATE_PROPERTY_KEY = "count";
+
   /**
    * Class version for serialization.
    */
@@ -32,6 +43,13 @@ public class MinAggregator extends PropertyValueAggregator {
    * Aggregate value. No need to deserialize as it is just used for comparison.
    */
   private PropertyValue aggregate;
+
+  /**
+   * Creates a new aggregator with default params
+   */
+  public MinAggregator() {
+    super(DEFAULT_PROPERTY_KEY, DEFAULT_AGGREGATE_PROPERTY_KEY);
+  }
 
   /**
    * Creates a new aggregator
