@@ -35,7 +35,7 @@ public class ReportGrownSubgraphs
 
     if (! wrapper.isCollector()) {
       for (DFSCode code :
-        wrapper.getTransaction().getCodeEmbeddings().keySet()) {
+        wrapper.getTransaction().getSubgraphEmbeddings().keySet()) {
         collector.collect(new SerializedDFSCode(code));
       }
     }

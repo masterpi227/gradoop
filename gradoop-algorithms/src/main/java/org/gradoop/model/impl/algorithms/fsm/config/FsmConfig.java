@@ -26,9 +26,9 @@ public class FsmConfig implements Serializable {
 
   /**
    * MinimumDfsCode relative support of a subgraph.
-   * Subgraph containing above the threshold are considered to be frequent.
+   * Subgraph containing above the minSupport are considered to be frequent.
    */
-  private final float threshold;
+  private final float minSupport;
 
   /**
    * Direction mode, true for directed graphs and false for undirected.
@@ -50,20 +50,20 @@ public class FsmConfig implements Serializable {
 
   /**
    * valued constructor
-   * @param threshold minimum relative support of a subgraph
+   * @param minSupport minimum relative support of a subgraph
    * @param directed direction mode
    * @param multiGraph multigraph mode
    */
-  public FsmConfig(float threshold, boolean directed, boolean multiGraph) {
-    this.threshold = threshold;
+  public FsmConfig(float minSupport, boolean directed, boolean multiGraph) {
+    this.minSupport = minSupport;
     this.directed = directed;
     this.multiGraph = multiGraph;
     this.maxEdgeCount = 1000;
     this.minEdgeCount = 0;
   }
 
-  public float getThreshold() {
-    return threshold;
+  public float getMinSupport() {
+    return minSupport;
   }
 
   public boolean isMultigraph() {

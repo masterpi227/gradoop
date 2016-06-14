@@ -15,33 +15,25 @@
  * along with Gradoop. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.functions;
+package org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions;
 
-import com.google.common.collect.Maps;
 import org.apache.flink.api.common.functions.GroupReduceFunction;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
-
-import java.util.Map;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.GSpan;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
+  .GSpanGraph;
+import org.gradoop.model.impl.algorithms.fsm.encoders.tuples.EdgeTriple;
 
 /**
- * (workerId,graphCount),.. => {workerId=graphCount,..}
+ * Creates a graph from a set of edge triples.
  */
-public class WorkerIdsGraphCounts implements GroupReduceFunction
-  <Tuple2<Integer, Integer>, Map<Integer, Integer>> {
+public class BuildGSpanGraph
+  implements GroupReduceFunction<EdgeTriple, GSpanGraph> {
 
   @Override
-  public void reduce(Iterable<Tuple2<Integer, Integer>> iterable,
-    Collector<Map<Integer, Integer>> collector) throws Exception {
+  public void reduce(Iterable<EdgeTriple> iterable,
+    Collector<GSpanGraph> collector) throws Exception {
 
-    Map<Integer, Integer> workerIdGraphCount = Maps.newHashMap();
-
-    for (Tuple2<Integer, Integer> pair : iterable) {
-      if (pair.f1 > 0) {
-        workerIdGraphCount.put(pair.f0, pair.f1);
-      }
-    }
-
-    collector.collect(workerIdGraphCount);
+    collector.collect(GSpan.createGSpanGraph(iterable));
   }
 }

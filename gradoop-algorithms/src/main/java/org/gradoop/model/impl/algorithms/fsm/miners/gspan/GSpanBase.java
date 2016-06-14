@@ -23,8 +23,7 @@ import org.apache.flink.api.java.ExecutionEnvironment;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.encoders.tuples.EdgeTriple;
 import org.gradoop.model.impl.algorithms.fsm.miners.TransactionalFsMiner;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions
-  .SearchSpace;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.functions.BuildGSpanGraph;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
   .GSpanGraph;
 
@@ -58,10 +57,10 @@ public abstract class GSpanBase implements TransactionalFsMiner {
    * @param edges edges
    * @return graph transactions
    */
-  protected DataSet<GSpanGraph> createTransactions(
+  protected DataSet<GSpanGraph> createGraphs(
     DataSet<EdgeTriple> edges) {
     return edges
       .groupBy(0)
-      .reduceGroup(new SearchSpace());
+      .reduceGroup(new BuildGSpanGraph());
   }
 }

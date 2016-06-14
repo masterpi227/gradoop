@@ -75,7 +75,7 @@ HostSet(
 2015-05-26 21:56:58,701 INFO  [main] util.GSet (LightWeightGSet.java:computeCapacity(330)) - 1.0% max memory = 1.7 GB
 2015-05-26 21:56:58,701 INFO  [main] util.GSet (LightWeightGSet.java:computeCapacity(332)) - capacity      = 2^21 = 2097152 entries
 2015-05-26 21:56:58,702 INFO  [main] namenode.NameNode (FSDirectory.java:<init>(173)) - Caching file names occuring more than 10 times
-2015-05-26 21:56:58,705 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4362)) - dfs.namenode.safemode.threshold-pct = 0.9990000128746033
+2015-05-26 21:56:58,705 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4362)) - dfs.namenode.safemode.minSupport-pct = 0.9990000128746033
 2015-05-26 21:56:58,705 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4363)) - dfs.namenode.safemode.min.datanodes = 0
 2015-05-26 21:56:58,706 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4364)) - dfs.namenode.safemode.extension     = 0
 2015-05-26 21:56:58,707 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:initRetryCache(725)) - Retry cache on namenode is enabled
@@ -132,7 +132,7 @@ HostSet(
 2015-05-26 21:56:59,225 INFO  [main] util.GSet (LightWeightGSet.java:computeCapacity(330)) - 1.0% max memory = 1.7 GB
 2015-05-26 21:56:59,225 INFO  [main] util.GSet (LightWeightGSet.java:computeCapacity(332)) - capacity      = 2^21 = 2097152 entries
 2015-05-26 21:56:59,227 INFO  [main] namenode.NameNode (FSDirectory.java:<init>(173)) - Caching file names occuring more than 10 times
-2015-05-26 21:56:59,227 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4362)) - dfs.namenode.safemode.threshold-pct = 0.9990000128746033
+2015-05-26 21:56:59,227 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4362)) - dfs.namenode.safemode.minSupport-pct = 0.9990000128746033
 2015-05-26 21:56:59,227 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4363)) - dfs.namenode.safemode.min.datanodes = 0
 2015-05-26 21:56:59,227 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:<init>(4364)) - dfs.namenode.safemode.extension     = 0
 2015-05-26 21:56:59,228 INFO  [main] namenode.FSNamesystem (FSNamesystem.java:initRetryCache(725)) - Retry cache on namenode is enabled
@@ -567,7 +567,7 @@ HostSet(
 2015-05-26 21:57:01,812 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - job.end.retry.attempts is deprecated. Instead, use mapreduce.job.end-notification.retry.attempts
 2015-05-26 21:57:01,812 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.reduce.tasks.speculative.execution is deprecated. Instead, use mapreduce.reduce.speculative
 2015-05-26 21:57:01,812 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapreduce.job.counters.limit is deprecated. Instead, use mapreduce.job.counters.max
-2015-05-26 21:57:01,812 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - dfs.safemode.threshold.pct is deprecated. Instead, use dfs.namenode.safemode.threshold-pct
+2015-05-26 21:57:01,812 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - dfs.safemode.minSupport.pct is deprecated. Instead, use dfs.namenode.safemode.minSupport-pct
 2015-05-26 21:57:01,812 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.task.tracker.task-controller is deprecated. Instead, use mapreduce.tasktracker.taskcontroller
 2015-05-26 21:57:01,813 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.jobtracker.maxtasks.per.job is deprecated. Instead, use mapreduce.jobtracker.maxtasks.perjob
 2015-05-26 21:57:01,813 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.reduce.child.log.level is deprecated. Instead, use mapreduce.reduce.log.level
@@ -618,7 +618,7 @@ HostSet(
 2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.healthChecker.script.timeout is deprecated. Instead, use mapreduce.tasktracker.healthchecker.script.timeout
 2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.tasktracker.instrumentation is deprecated. Instead, use mapreduce.tasktracker.instrumentation
 2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.job.reuse.jvm.num.tasks is deprecated. Instead, use mapreduce.job.jvm.numtasks
-2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.inmem.merge.threshold is deprecated. Instead, use mapreduce.reduce.merge.inmem.threshold
+2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.inmem.merge.minSupport is deprecated. Instead, use mapreduce.reduce.merge.inmem.minSupport
 2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - topology.script.number.args is deprecated. Instead, use net.topology.script.number.args
 2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - mapred.reduce.slowstart.completed.maps is deprecated. Instead, use mapreduce.job.reduce.slowstart.completedmaps
 2015-05-26 21:57:01,817 INFO  [RS:0;localhost:35298] Configuration.deprecation (Configuration.java:warnOnceIfDeprecated(840)) - dfs.umaskmode is deprecated. Instead, use fs.permissions.umask-mode

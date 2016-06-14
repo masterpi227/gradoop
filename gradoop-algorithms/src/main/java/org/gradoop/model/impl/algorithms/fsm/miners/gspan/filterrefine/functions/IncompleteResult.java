@@ -17,22 +17,18 @@
 
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.functions;
 
-import org.apache.flink.api.common.functions.MapFunction;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
-import org.gradoop.model.impl.tuples.WithCount;
+import org.apache.flink.api.common.functions.FilterFunction;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples
   .RefinementMessage;
 
 /**
- * refinementMessage => (subgraph, frequency)
+ * filters incomplete results from refinement messages.
  */
-public class CompressedSubgraphWithCount
-  implements MapFunction<RefinementMessage, WithCount<CompressedDFSCode>> {
+public class IncompleteResult implements FilterFunction<RefinementMessage> {
 
   @Override
-  public WithCount<CompressedDFSCode> map(
-    RefinementMessage message) throws Exception {
-
-    return new WithCount<>(message.getSubgraph(), message.getSupport());
+  public boolean filter(RefinementMessage refinementMessage) throws Exception {
+    return
+      refinementMessage.getMessageType() == RefinementMessage.INCOMPLETE_RESULT;
   }
 }

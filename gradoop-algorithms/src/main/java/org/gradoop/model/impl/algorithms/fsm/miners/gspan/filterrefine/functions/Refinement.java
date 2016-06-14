@@ -1,27 +1,54 @@
+/*
+ * This file is part of Gradoop.
+ *
+ * Gradoop is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Gradoop is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Gradoop. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.functions;
 
 import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.util.Collector;
+import org.gradoop.model.impl.tuples.WithCount;
 import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.GSpan;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.DFSCode;
-import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos
-  .GSpanGraph;
+import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.GSpanGraph;
 import org.gradoop.model.impl.algorithms.fsm.miners.gspan.common.pojos.CompressedDFSCode;
-import org.gradoop.model.impl.tuples.WithCount;
 
 import java.util.Collection;
 
+/**
+ * (workerId, {subgraph,..}) |><| (workerId, {graph,..}) =>
+ *   (subgraph, frequency),..
+ */
 public class Refinement implements FlatJoinFunction<
   Tuple2<Integer, Collection<CompressedDFSCode>>,
   Tuple2<Integer, Collection<GSpanGraph>>, WithCount<CompressedDFSCode>> {
 
-
+  /**
+   * FSM configuration
+   */
   private final FsmConfig fsmConfig;
 
-  public Refinement(FsmConfig config) {
-    fsmConfig = config;
+  /**
+   * Constructor.
+   *
+   * @param fsmConfig FSM configuration
+   */
+  public Refinement(FsmConfig fsmConfig) {
+    this.fsmConfig = fsmConfig;
   }
 
   @Override
@@ -33,13 +60,13 @@ public class Refinement implements FlatJoinFunction<
     Collection<CompressedDFSCode> refinementSubgraphs = partitionSubgraphs.f1;
     Collection<GSpanGraph> graphs = partitionGraphs.f1;
 
-    for(CompressedDFSCode compressedSubgraph : refinementSubgraphs) {
+    for (CompressedDFSCode compressedSubgraph : refinementSubgraphs) {
 
       DFSCode subgraph = compressedSubgraph.getDfsCode();
       int frequency = 0;
 
-      for(GSpanGraph graph : graphs) {
-        if(GSpan.contains(graph, subgraph, fsmConfig)) {
+      for (GSpanGraph graph : graphs) {
+        if (GSpan.contains(graph, subgraph, fsmConfig)) {
           frequency++;
         }
       }

@@ -15,31 +15,7 @@
  * along with Gradoop. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.gradoop.model.impl.algorithms.fsm.encoders.functions;
-
-import org.apache.flink.api.common.functions.MapFunction;
-import org.gradoop.model.impl.algorithms.fsm.config.FsmConfig;
-
 /**
- * graphCount =[threshold]=> minimum support
+ * Classes related to the filter and refine gSpan implementation.
  */
-public class MinFrequency implements MapFunction<Long, Integer> {
-
-  /**
-   * minimum relative support
-   */
-  private final float threshold;
-
-  /**
-   * constructor
-   * @param fsmConfig mining configuration
-   */
-  public MinFrequency(FsmConfig fsmConfig) {
-    this.threshold = fsmConfig.getMinSupport();
-  }
-
-  @Override
-  public Integer map(Long totalCount) throws Exception {
-    return Math.round((float) totalCount * threshold);
-  }
-}
+package org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine;

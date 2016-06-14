@@ -34,20 +34,20 @@ public class GSpanGraph implements Serializable {
   /**
    * Embeddings (value) of supported DFS codes (key)
    */
-  private Map<DFSCode, Collection<DFSEmbedding>> codeEmbeddings;
+  private Map<DFSCode, Collection<DFSEmbedding>> subgraphEmbeddings;
 
   /**
    * Constructor.
    *
    * @param adjacencyLists adjacency lists
-   * @param codeEmbeddings initial DFS codes and embeddings
+   * @param subgraphEmbeddings initial DFS codes and embeddings
    */
   public GSpanGraph(
     List<AdjacencyList> adjacencyLists,
-    Map<DFSCode, Collection<DFSEmbedding>> codeEmbeddings) {
+    Map<DFSCode, Collection<DFSEmbedding>> subgraphEmbeddings) {
 
     this.adjacencyLists = adjacencyLists;
-    this.codeEmbeddings = codeEmbeddings;
+    this.subgraphEmbeddings = subgraphEmbeddings;
   }
 
 
@@ -57,20 +57,20 @@ public class GSpanGraph implements Serializable {
    * @return true, if able, false, otherwise
    */
   public Boolean hasGrownSubgraphs() {
-    return this.codeEmbeddings != null;
+    return this.subgraphEmbeddings != null;
   }
 
   public List<AdjacencyList> getAdjacencyLists() {
     return adjacencyLists;
   }
 
-  public Map<DFSCode, Collection<DFSEmbedding>> getCodeEmbeddings() {
-    return codeEmbeddings;
+  public Map<DFSCode, Collection<DFSEmbedding>> getSubgraphEmbeddings() {
+    return subgraphEmbeddings;
   }
 
-  public void setCodeEmbeddings(
-    Map<DFSCode, Collection<DFSEmbedding>> codeEmbeddings) {
-    this.codeEmbeddings = codeEmbeddings;
+  public void setSubgraphEmbeddings(
+    Map<DFSCode, Collection<DFSEmbedding>> subgraphEmbeddings) {
+    this.subgraphEmbeddings = subgraphEmbeddings;
   }
 
   @Override

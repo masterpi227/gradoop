@@ -54,7 +54,7 @@ public class PostPruneAndCompress implements FlatMapFunction
     DFSCode code = subgraph.getObject().getDfsCode();
     int support = subgraph.getCount();
 
-    if (GSpan.isMinimumDfsCode(code, fsmConfig)) {
+    if (GSpan.isMinimal(code, fsmConfig)) {
       collector.collect(new WithCount<>(new CompressedDFSCode(code), support));
     }
   }

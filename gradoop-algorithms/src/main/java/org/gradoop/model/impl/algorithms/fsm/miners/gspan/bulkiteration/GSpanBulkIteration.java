@@ -56,7 +56,7 @@ public class GSpanBulkIteration extends GSpanBase {
     DataSet<Integer> minFrequency, FsmConfig fsmConfig) {
 
     setFsmConfig(fsmConfig);
-    DataSet<IterationItem> transactions = createTransactions(edges)
+    DataSet<IterationItem> transactions = createGraphs(edges)
       .map(new IterationItemWithTransaction());
 //      .map(new Print<IterationItem>(""));
 

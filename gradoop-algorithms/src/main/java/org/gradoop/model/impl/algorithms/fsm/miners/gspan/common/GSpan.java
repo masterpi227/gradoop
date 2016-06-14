@@ -355,7 +355,7 @@ public class GSpan {
   /**
    * Core of gSpan pattern growth.
    * Grows all children of supported frequent subgraphs.
-   * 
+   *
    * @param graph graph
    * @param frequentParentSubgraphs frequent subgraphs
    * @param fsmConfig FSM configuration
@@ -366,7 +366,7 @@ public class GSpan {
 
     for (DFSCode parentSubgraph : frequentParentSubgraphs) {
       Collection<DFSEmbedding> parentEmbeddings =
-        graph.getCodeEmbeddings().get(parentSubgraph);
+        graph.getSubgraphEmbeddings().get(parentSubgraph);
 
       if (parentEmbeddings != null) {
         int minVertexLabel = parentSubgraph.getMinVertexLabel();
@@ -452,7 +452,7 @@ public class GSpan {
         }
       }
     }
-    graph.setCodeEmbeddings(childCodeEmbeddings);
+    graph.setSubgraphEmbeddings(childCodeEmbeddings);
   }
 
   /**
@@ -527,7 +527,7 @@ public class GSpan {
    * @param fsmConfig FSM configuration
    * @return true, if minimal, false otherwise
    */
-  public static boolean isMinimumDfsCode(
+  public static boolean isMinimal(
     DFSCode subgraph, FsmConfig fsmConfig) {
 
     GSpanGraph graph = createGSpanGraph(subgraph);
@@ -550,7 +550,7 @@ public class GSpan {
 
     while (graph.hasGrownSubgraphs()) {
       Set<DFSCode> grownSubgraphs =
-        graph.getCodeEmbeddings().keySet();
+        graph.getSubgraphEmbeddings().keySet();
 
       minDfsCode = selectMinDFSCode(grownSubgraphs, fsmConfig);
 

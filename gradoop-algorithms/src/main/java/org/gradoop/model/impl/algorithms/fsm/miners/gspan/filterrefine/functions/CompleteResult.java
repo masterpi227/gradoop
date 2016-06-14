@@ -22,13 +22,14 @@ import org.gradoop.model.impl.algorithms.fsm.miners.gspan.filterrefine.tuples
   .RefinementMessage;
 
 /**
- * filters frequent (CompressedDfsCodes, Frequency), i.e., Frequency > minFrequency
+ * filters frequent (CompressedDfsCodes, Frequency),
+ * i.e., Frequency > minFrequency
  */
-public class CompleteResult
-  implements FilterFunction<RefinementMessage> {
+public class CompleteResult implements FilterFunction<RefinementMessage> {
 
   @Override
   public boolean filter(RefinementMessage refinementMessage) throws Exception {
-    return refinementMessage.getMessageType() == RefinementMessage.GLOBALLY_FREQUENT;
+    return
+      refinementMessage.getMessageType() == RefinementMessage.COMPLETE_RESULT;
   }
 }
